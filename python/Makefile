@@ -26,7 +26,7 @@ install:
 
 upgrade:
 	set -e
-	wget -q oat.sh/pymakefile -O Makefile
+	wget -q https://raw.githubusercontent.com/alphagov/cyber-security-tools/master/python/Makefile -O Makefile
 	echo "✔️ Upgraded Makefile!"
 
 watch:
