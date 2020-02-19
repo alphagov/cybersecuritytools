@@ -2,7 +2,8 @@
 # and then either `make` for a single test run
 # or `make watch` for a continuous pipeline that reruns on changes.
 # 
-# Comments and/or hate mail to o@tman.me
+# Comments to cyber.security@digital.cabinet-office.gov.uk
+# This is free and unencumbered software released into the public domain.
 
 .SILENT: test install upgrade watch checks
 
