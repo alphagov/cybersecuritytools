@@ -1,14 +1,14 @@
 # In your python env, run `make install` to insall required packages
 # and then either `make` for a single test run
 # or `make watch` for a continuous pipeline that reruns on changes.
-# 
+#
 # Comments to cyber.security@digital.cabinet-office.gov.uk
 # This is free and unencumbered software released into the public domain.
 
 .SILENT: test install upgrade watch checks
 
 test: checks
-	pytest
+	pytest -sqx --disable-warnings # Warnings skipped because flake8 catches them
 	echo "✔️ Tests passed!"
 
 checks:
