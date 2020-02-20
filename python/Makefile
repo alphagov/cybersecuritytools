@@ -8,21 +8,22 @@
 .SILENT: test install upgrade watch checks
 
 test: checks
-	pytest -sqx --disable-warnings # Warnings skipped because flake8 catches them
+	pytest -sqx --disable-warnings
 	echo "✔️ Tests passed!"
 
 checks:
 	echo "⏳ running pipeline..."
 	set -e
+	isort --atomic -yq
 	black -q .
-	flake8 --max-line-length=88 .  # in line with black
+	flake8 .
 	mypy --pretty .
 	echo "✔️ Checks pipeline passed!"
 
 install:
 	set -e
 	echo "⏳ installing..."
-	pip -q install black flake8 mypy watchdog pyyaml argh pytest
+	pip -q install black flake8 mypy watchdog pyyaml argh pytest isort
 	echo "✔️ Pip dependencies installed!"
 
 upgrade:
