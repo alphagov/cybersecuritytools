@@ -33,4 +33,4 @@ upgrade:
 
 watch:
 	echo "✔️ Watch setup, save a python file to trigger test pipeline"
-	watchmedo shell-command --patterns="*.py" --ignore-patterns="*#*" --recursive --command='clear && make --no-print-directory test' .
+	watchmedo shell-command --drop --ignore-directories --patterns="*.py" --ignore-patterns="*#*" --recursive --command='clear && make --no-print-directory test' .
