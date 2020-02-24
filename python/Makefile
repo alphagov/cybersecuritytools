@@ -24,6 +24,7 @@ install:
 	set -e
 	echo "⏳ installing..."
 	pip -q install black flake8 mypy watchdog pyyaml argh pytest isort
+	mypy_boto3 -q && echo  "✔️ mypy_boto3 stubs installed!"!! || true # ignored if not installed
 	echo "✔️ Pip dependencies installed!"
 
 upgrade:
