@@ -8,23 +8,24 @@
 .SILENT: test install upgrade watch checks
 
 test: checks
-	pytest -sqx --disable-warnings
+	pipenv run pytest -sqx --disable-warnings
 	echo "✔️ Tests passed!"
 
 checks:
 	echo "⏳ running pipeline..."
 	set -e
-	isort --atomic -yq
-	black -q .
-	flake8 .
-	mypy --pretty .
+	pipenv run isort --atomic -yq
+	pipenv run black -q .
+	pipenv run flake8 .
+	pipenv run mypy --pretty .
 	echo "✔️ Checks pipeline passed!"
 
 install:
 	set -e
 	echo "⏳ installing..."
-	pip -q install black flake8 mypy watchdog pyyaml argh pytest isort
-	mypy_boto3 -q && echo  "✔️ mypy_boto3 stubs installed!"!! || true # ignored if not installed
+	pipenv install flake8 mypy watchdog pyyaml argh pytest isort
+	pipenv install --pre black
+	pipenv run mypy_boto3 -q && echo  "✔️ mypy_boto3 stubs installed!"!! || true # ignored if not installed
 	echo "✔️ Pip dependencies installed!"
 
 upgrade:
@@ -34,4 +35,4 @@ upgrade:
 
 watch:
 	echo "✔️ Watch setup, save a python file to trigger test pipeline"
-	watchmedo shell-command --drop --ignore-directories --patterns="*.py" --ignore-patterns="*#*" --recursive --command='clear && make --no-print-directory test' .
+	pipenv run watchmedo shell-command --drop --ignore-directories --patterns="*.py" --ignore-patterns="*#*" --recursive --command='clear && make --no-print-directory test' .
