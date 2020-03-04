@@ -11,7 +11,7 @@ test: checks
 	pipenv run pytest -sqx --disable-warnings
 	echo "✔️ Tests passed!"
 
-checks:
+checks: Pipfile.lock
 	echo "⏳ running pipeline..."
 	set -e
 	pipenv run isort --atomic -yq
@@ -20,7 +20,7 @@ checks:
 	pipenv run mypy --pretty .
 	echo "✔️ Checks pipeline passed!"
 
-install:
+Pipfile.lock:
 	set -e
 	echo "⏳ installing..."
 	pipenv install flake8 mypy watchdog pyyaml argh pytest isort
