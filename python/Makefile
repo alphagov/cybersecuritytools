@@ -5,7 +5,7 @@
 # Comments to cyber.security@digital.cabinet-office.gov.uk
 # This is free and unencumbered software released into the public domain.
 
-.SILENT: test install upgrade watch checks
+.SILENT: test install upgrade watch checks Pipfile.lock
 
 test: checks
 	pipenv run pytest -sqx --disable-warnings
