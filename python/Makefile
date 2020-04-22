@@ -1,5 +1,4 @@
-# In your python env, run `make install` to insall required packages
-# and then either `make` for a single test run
+# Run `make` for a single test run
 # or `make watch` for a continuous pipeline that reruns on changes.
 #
 # Comments to cyber.security@digital.cabinet-office.gov.uk
