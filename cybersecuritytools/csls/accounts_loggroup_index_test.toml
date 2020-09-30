@@ -1,0 +1,7 @@
+# Test dat
+
+[1111111111]
+"/log_group1" = { index = "index1", sourcetype = "aws:foo:bar" }
+
+[2222222222]
+"/log_group2" = { index = "index2", sourcetype = "aws:too:boo" }
