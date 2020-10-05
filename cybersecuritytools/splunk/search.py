@@ -10,9 +10,9 @@ from .credentials import SplunkCredentials
 class Search:
     def __init__(self, credentials: SplunkCredentials):
         self.credentials = credentials
-        self.client = self.__client()
+        self.client = self.client()
 
-    def __client(self) -> Any:
+    def client(self) -> Any:
         """Create a client to connect to Splunk."""
         return client.connect(
             host=self.credentials.hostname,
