@@ -1,4 +1,4 @@
-import os
+import re
 from copy import deepcopy
 
 from .put_cloudwatch_logs import CloudWatchLogResult
@@ -68,9 +68,7 @@ def test_payload_found_false() -> None:
     assert not payload_found(cloudwatch_results, splunk_results)
 
 
-def test_search_querty() -> None:
-    uuid = 80000
-    random_uuid = os.environ.get("random_uuid", uuid)
+def test_search_query() -> None:
     expected = (
         'search index IN ("test_data") '
         "sourcetype IN (aws:test:general, gds:test:raw, "
@@ -79,10 +77,13 @@ def test_search_querty() -> None:
         "|eval latency=_indextime - _time"
     )
 
-    load_expected = (
-        'search index IN ("test_data") '
-        f'source="HOSTWHO:LOGWHAT:{random_uuid}"'
-        "| stats count(source)"
+    uuid4 = r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+
+    load_expected_regex = re.compile(
+        'search index IN \("test_data"\) '  # noqa: W605
+        f'.*source="HOSTWHO:LOGWHAT:{uuid4}"'
+        "| stats count\(source\)"  # noqa: W605
     )
+
     assert search_query(test_type="smoke_test") == expected
-    assert search_query(test_type="load_test") == load_expected
+    assert re.match(load_expected_regex, search_query(test_type="load_test"))

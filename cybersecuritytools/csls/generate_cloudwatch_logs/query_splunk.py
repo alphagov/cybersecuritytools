@@ -1,5 +1,6 @@
 import os
 from typing import Any, Dict, List
+from uuid import uuid4
 
 from .put_cloudwatch_logs import CloudWatchLogResult, log_formats, log_group_name
 
@@ -19,8 +20,7 @@ def search_query(test_type: str, index: str = "test_data") -> str:
     sourcetypes = ", ".join(
         [log_group_name_to_splunk_format(log_group_name(f)) for f in log_formats()]
     )
-    uuid = 80000
-    random_uuid = os.environ.get("random_uuid", uuid)
+    random_uuid = os.environ.get("random_uuid", str(uuid4()))
     if test_type == "smoke_test":
         return (
             f'search index IN ("{index}") '
