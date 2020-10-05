@@ -2,7 +2,6 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from functools import lru_cache
 from typing import Any, Dict, List
 from uuid import uuid4
 
@@ -15,7 +14,6 @@ class LogEventResponseReal(PutLogEventsResponseTypeDef):
     ResponseMetadata: Dict[Any, Any]
 
 
-@lru_cache(maxsize=None)
 def logs_client() -> logs.CloudWatchLogsClient:
     return boto3.client("logs")
 
@@ -52,7 +50,6 @@ def log_lines(payload: str = "") -> LogLines:
     return LogLines(logs, payload, now)
 
 
-@lru_cache()
 def log_formats() -> List[str]:
     """Logging output formats"""
     return [*log_lines().logs]
