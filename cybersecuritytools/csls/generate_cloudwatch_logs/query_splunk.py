@@ -36,9 +36,12 @@ def search_query(test_type: str, index: str = "test_data") -> str:
         )
 
 
+SplunkResults = List[Dict[Any, Any]]
+
+
 def payload_found(
     cloudwatch_results: Dict[str, CloudWatchLogResult],
-    splunk_results: List[Dict[Any, Any]],
+    splunk_results: SplunkResults,
 ) -> bool:
     sr = set([r["_raw"] for r in splunk_results])
     cwr = set([c.log_line for c in cloudwatch_results.values()])
@@ -46,7 +49,7 @@ def payload_found(
 
 
 def load_test_found(
-    splunk_results: List[Dict[Any, Any]], requests_completed: int, artillery_config: int
+    splunk_results: SplunkResults, requests_completed: int, artillery_config: int
 ) -> bool:
     values = [r["count(source)"] for r in splunk_results]
     for result in values:
