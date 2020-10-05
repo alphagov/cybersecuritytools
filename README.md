@@ -18,6 +18,17 @@ variable and re running the pip command.
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 ```
 
+# Running
+
+Once installed you should be able to run `cst` from anywhere.
+
+The CLI interface is setup to have multiple sub commands. This helps
+us organise multiple projects tools into a single CLI. For example:
+
+``` sh
+cst sub1 sub2 command
+```
+
 # Developing
 
 Install (pyenv)[https://github.com/pyenv/pyenv] then install Python 3.6, 3.7, and 3.8.

@@ -1,7 +1,12 @@
 from botocore.exceptions import ClientError  # type: ignore
 
-from ..splunk.api import SplunkApi, SplunkApiError, splunk_credentials_new
-from ..splunk.x509 import RequestsFingerPrintAdapterCertificates, cert_bundle_new
+from cybersecuritytools.splunk.api import SplunkApi, SplunkApiError
+from cybersecuritytools.splunk.credentials import credentials
+from cybersecuritytools.splunk.x509 import (
+    RequestsFingerPrintAdapterCertificates,
+    cert_bundle_new,
+)
+
 from .accountstoml import indexes_from_accounts, load_accounts_loggroup_index_toml
 
 
@@ -35,7 +40,7 @@ def hec_index_checker(accounts: str, token: str, ssm: str) -> bool:
     required_indexes = indexes_from_accounts(accounts_log_group)
 
     try:
-        credentials = splunk_credentials_new(ssm)
+        api_credentials = credentials(ssm, "api")
     except ClientError:
         print("[!] Unable to build Splunk Credentials")
         return False
@@ -45,10 +50,10 @@ def hec_index_checker(accounts: str, token: str, ssm: str) -> bool:
     except ClientError:
         print("[!] Unable to build Splunk certificate bundle")
         return False
-
+    print(cert_bundle)
     rfpac = RequestsFingerPrintAdapterCertificates(cert_bundle)
 
-    splunk_api = SplunkApi(credentials, rfpac)
+    splunk_api = SplunkApi(api_credentials, rfpac)
 
     try:
         available_indexes = splunk_api.token_indexes(token)

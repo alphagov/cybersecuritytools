@@ -1,6 +1,7 @@
 import pytest
 
-from .api import SplunkApi, SplunkCredentials
+from .api import SplunkApi
+from .credentials import SplunkCredentials
 from .x509 import RequestsFingerPrintAdapterCertificates
 
 

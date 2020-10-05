@@ -1,58 +1,11 @@
-import os
-from dataclasses import dataclass
 from typing import Any, Set
 
 import requests
 from requests.auth import HTTPBasicAuth
 from requests_toolbelt.adapters.fingerprint import FingerprintAdapter  # type: ignore
 
-from ..aws.ssm import get_param_from_ssm
+from .credentials import SplunkCredentials
 from .x509 import RequestsFingerPrintAdapterCertificates
-
-
-@dataclass
-class SplunkCredentials:
-    hostname: str
-    port: str
-    password: str
-    username: str
-
-
-def splunk_credentials_new(ssm_root: str) -> SplunkCredentials:
-    """Retrieves details for connecting to Splunk. It will use prefer
-    local environment variables if configured, or it will fetch the
-    parameters from AWS SSM.
-
-    The environment variables are:
-    SPLUNK_HOSTNAME
-    SPLUNK_PORT
-    SPLUNK_USERNAME
-    SPLUNK_PASSWORD
-
-    The AWS SSM parameter names are:
-    '/{ssm_root}/splunk_hostname'
-    '/{ssm_root}/splunk_port'
-    '/{ssm_root}/splunk_username'
-    '/{ssm_root}/splunk_password'
-
-    If a complete set of credentials can't be collected this function will error.
-    """
-    hostname = os.environ.get(
-        "SPLUNK_HOSTNAME", get_param_from_ssm(f"/{ssm_root}/splunk_hostname")
-    )
-    port = os.environ.get("SPLUNK_PORT", get_param_from_ssm(f"/{ssm_root}/splunk_port"))
-    username = os.environ.get(
-        "SPLUNK_USERNAME", get_param_from_ssm(f"/{ssm_root}/splunk_username")
-    )
-    password = os.environ.get(
-        "SPLUNK_PASSWORD", get_param_from_ssm(f"/{ssm_root}/splunk_password")
-    )
-    return SplunkCredentials(
-        hostname=hostname,
-        port=port,
-        username=username,
-        password=password,
-    )
 
 
 class SplunkApiError(Exception):
