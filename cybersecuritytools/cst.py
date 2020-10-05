@@ -7,5 +7,6 @@ from cybersecuritytools.csls.cli import csls
 def cli() -> None:
     pass
 
+
 # Add new modules here
 cli.add_command(csls)
