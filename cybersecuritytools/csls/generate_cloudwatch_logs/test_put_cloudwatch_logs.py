@@ -6,7 +6,7 @@ import pytest
 from moto import mock_logs  # type: ignore
 from pytest_mock import MockerFixture
 
-import cybersecuritytools.csls.generate_cloudwatch_logs.put_cloudwatch_logs as pcw
+from cybersecuritytools.csls.generate_cloudwatch_logs import put_cloudwatch_logs
 
 from .put_cloudwatch_logs import (
     log_formats,
@@ -57,7 +57,7 @@ def test_setup_cloudwatch_log_groups(fmt: str, mocker: MockerFixture) -> None:
     setup_cloudwatch_log_groups(d, r)
 
     call = mocker.call(f"/gds/test/{fmt}", d, r)
-    assert call in pcw.create_cloudwatch_log_group.mock_calls  # type: ignore
+    assert call in put_cloudwatch_logs.create_cloudwatch_log_group.mock_calls  # type: ignore # noqa: E501
 
 
 def test_log_group_name() -> None:
