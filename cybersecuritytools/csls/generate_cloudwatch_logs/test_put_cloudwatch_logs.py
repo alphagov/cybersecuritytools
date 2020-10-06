@@ -2,6 +2,7 @@ import json
 import os
 from uuid import uuid4
 
+import boto3
 import pytest
 from moto import mock_logs  # type: ignore
 from pytest_mock import MockerFixture
@@ -12,7 +13,6 @@ from .put_cloudwatch_logs import (
     log_formats,
     log_group_name,
     log_lines,
-    logs_client,
     send_logs_to_cloudwatch,
     setup_cloudwatch_log_groups,
 )
@@ -71,7 +71,7 @@ def test_send_logs_to_cloudwatch(file_format: str, mocker: MockerFixture) -> Non
     """"Check ClouldWatchLogResults objects are created for the expected formats"""
     os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"
     # Create log groups for test
-    client = logs_client()
+    client = boto3.client("logs")
 
     for file_format in ["general"] + log_formats():
         client.create_log_group(logGroupName=log_group_name(file_format))

@@ -6,16 +6,11 @@ from typing import Any, Dict, List
 from uuid import uuid4
 
 import boto3
-import mypy_boto3_logs as logs
 from mypy_boto3_logs.type_defs import PutLogEventsResponseTypeDef
 
 
 class LogEventResponseReal(PutLogEventsResponseTypeDef):
     ResponseMetadata: Dict[Any, Any]
-
-
-def logs_client() -> logs.CloudWatchLogsClient:
-    return boto3.client("logs")
 
 
 @dataclass
@@ -69,7 +64,7 @@ def create_cloudwatch_log_group(group_name: str, dest_arn: str, role_arn: str) -
     role_arn: The role arn to use when shipping logs to Kinesis
 
     """
-    cwl = logs_client()
+    cwl = boto3.client("logs")
     try:
         cwl.create_log_group(logGroupName=group_name)
     except cwl.exceptions.ResourceAlreadyExistsException:
@@ -113,7 +108,9 @@ def log_stream_name() -> LogStream:
 def create_log_stream(group_name: str) -> LogStream:
     """Create a log stream with the a name genreated by log_stream_name()"""
     ls = log_stream_name()
-    logs_client().create_log_stream(logGroupName=group_name, logStreamName=ls.name)
+    boto3.client("logs").create_log_stream(
+        logGroupName=group_name, logStreamName=ls.name
+    )
     return ls
 
 
@@ -132,12 +129,13 @@ def send_logs_to_cloudwatch() -> Dict[str, CloudWatchLogResult]:
 
     results = {}
 
+    cwl = boto3.client("logs")
     for file_format, line in lines.logs.items():
 
         group_name = log_group_name(file_format)
         stream = create_log_stream(group_name)
 
-        logs_client().put_log_events(
+        cwl.put_log_events(
             logGroupName=group_name,
             logStreamName=stream.name,
             logEvents=[{"timestamp": stream.timestamp_ms, "message": line}],
