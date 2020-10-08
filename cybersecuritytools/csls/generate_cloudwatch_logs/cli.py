@@ -120,7 +120,7 @@ def load_test(ssm: str, timeout: int) -> None:
             print("Splunk results: ")
             pprint(splunk_results)
             print(
-                f"\n❌ TIMEOUT searching for payload in splunk after {duration} seconds",
+                f"\n❌TIMEOUT searching for payload in splunk after {duration} seconds",
                 file=sys.stderr,
             )
             sys.exit(1)
