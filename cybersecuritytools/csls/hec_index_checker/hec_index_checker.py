@@ -50,7 +50,6 @@ def hec_index_checker(accounts: str, token: str, ssm: str) -> bool:
     except ClientError:
         print("[!] Unable to build Splunk certificate bundle")
         return False
-    print(cert_bundle)
     rfpac = RequestsFingerPrintAdapterCertificates(cert_bundle)
 
     splunk_api = SplunkApi(api_credentials, rfpac)
