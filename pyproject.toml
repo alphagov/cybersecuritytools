@@ -20,6 +20,8 @@ requests = "*"
 requests_toolbelt = "*"
 toml = "*"
 dataclasses = { version = "*", python = "~3.6" }
+boto3-stubs = {extras = ["essential", "logs"], version="*"}
+splunk-sdk = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -28,9 +30,11 @@ black = { version = "*", allow-prereleases = true }
 pytest-black = "*"
 pytest-isort = "*"
 pytest-flake8 = "*"
+pytest-mock = "*"
 pytest-mypy = "*"
 pytest-cov = "*"
 tox-gh-actions = "*"
+moto = "*"
 
 [tool.poetry.scripts]
 cst = "cybersecuritytools.cst:cli"
