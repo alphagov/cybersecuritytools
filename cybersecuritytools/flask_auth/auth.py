@@ -104,22 +104,31 @@ def check_access(path, user):
     """
     logged_in = user is not None
     controls = get_access_controls()
-    deny = False
+    allow = True
     # Check for content access restrictions
     for auth_path, settings in controls["paths"].items():
         if path.startswith(auth_path):
             access_message = settings.get("message", "You need to be granted access.")
             print(f"Authed path: {path}")
             if settings.get("open_access", False) or not logged_in:
-                deny = True
-            elif "required_roles" in settings:
-                # Only check roles if auth required and logged in
-                required_set = set(settings["required_roles"])
-                has_set = set(user.get("roles", []))
-                deny = not required_set.issubset(has_set)
+                allow = False
+            else:
+                if "require_all" in settings:
+                    # Only check roles if auth required and logged in
+                    required_set = set(settings["require_all"])
+                    has_set = set(user.get("roles", []))
+                    allow = required_set.issubset(has_set)
+                if "require_any" in settings:
+                    # Only check roles if auth required and logged in
+                    required_set = set(settings["require_any"])
+                    has_set = set(user.get("roles", []))
+                    allow = any(role in has_set for role in required_set)
 
-    if deny:
-        raise AccessDeniedException(request_path=path, message=access_message)
+    if not allow:
+        raise AccessDeniedException(
+            request_path=path,
+            message=access_message
+        )
 
 
 def authorize_or_redirect(app, denied_route="/access-denied"):

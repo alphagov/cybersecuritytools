@@ -3,7 +3,6 @@ import os
 import auth
 from flask import *
 from oidc import (
-    AUTHMACHINE_API_TOKEN,
     AUTHMACHINE_URL,
     AuthMachineClient,
     no_ssl_verification,
