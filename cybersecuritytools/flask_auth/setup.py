@@ -18,5 +18,12 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    install_requires=[
+        "flask",
+        "serverless_wsgi",
+        "pyjwt",
+        "requests",
+        "git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=gds_json_logger&subdirectory=cybersecuritytools/logger"
+    ],
+    python_requires=">=3.6",
 )

@@ -113,22 +113,20 @@ def check_access(path, user):
             if settings.get("open_access", False) or not logged_in:
                 allow = False
             else:
+                # Only check roles if auth required and logged in
                 if "require_all" in settings:
-                    # Only check roles if auth required and logged in
+                    # require user has all the roles specified
                     required_set = set(settings["require_all"])
                     has_set = set(user.get("roles", []))
                     allow = required_set.issubset(has_set)
                 if "require_any" in settings:
-                    # Only check roles if auth required and logged in
+                    # require user has any one of specified roles
                     required_set = set(settings["require_any"])
                     has_set = set(user.get("roles", []))
                     allow = any(role in has_set for role in required_set)
 
     if not allow:
-        raise AccessDeniedException(
-            request_path=path,
-            message=access_message
-        )
+        raise AccessDeniedException(request_path=path, message=access_message)
 
 
 def authorize_or_redirect(app, denied_route="/access-denied"):
