@@ -23,10 +23,7 @@ setuptools.setup(
         "serverless_wsgi",
         "pyjwt",
         "requests",
-        "jsonlogger"
-    ],
-    dependency_links=[
-        "https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=jsonlogger&subdirectory=cybersecuritytools/jsonlogger"
+        "jsonlogger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=jsonlogger&subdirectory=cybersecuritytools/jsonlogger"
     ],
     python_requires=">=3.6",
 )
