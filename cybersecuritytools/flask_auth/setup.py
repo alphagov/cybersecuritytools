@@ -23,7 +23,10 @@ setuptools.setup(
         "serverless_wsgi",
         "pyjwt",
         "requests",
-        "git+git://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=logger&subdirectory=cybersecuritytools/logger"
+        "logger"
+    ],
+    dependency_links=[
+        "https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=logger&subdirectory=cybersecuritytools/logger"
     ],
     python_requires=">=3.6",
 )
