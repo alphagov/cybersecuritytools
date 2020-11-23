@@ -201,9 +201,11 @@ def authorize_static(app):
             print(f"URL: {path}")
 
             # Don't access control asset files
-            ext = ".".split(path).pop()
-            passthru = ext in ["ico", "css", "js", "png", "gif", "jpg", "jpeg"]
+            ext = path.split(".").pop()
+            passthru = ext in ["ico", "css", "js", "png", "woff", "woff2"]
             if passthru:
+                # remove leading slash to avoid // in path
+                path = re.sub("^\/", "", path)
                 response = send_from_directory(STATIC_SITE_ROOT, path)
 
             # Always refuse the access control settings
@@ -270,8 +272,12 @@ def get_static_file_content(path):
     """
     Get the file content from a path in the static site
     """
-    with open(f"{STATIC_SITE_ROOT}{path}", "r") as content_file:
-        content = content_file.read()
+    try:
+        with open(f"{STATIC_SITE_ROOT}{path}", "r") as content_file:
+            content = content_file.read()
+    except UnicodeDecodeError:
+        with open(f"{STATIC_SITE_ROOT}{path}", "rb") as content_file:
+            content = content_file.read()
     return content
 
 
