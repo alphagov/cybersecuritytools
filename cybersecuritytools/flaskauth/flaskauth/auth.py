@@ -2,8 +2,9 @@ import json
 import re
 from functools import wraps
 
-from alb import alb_get_user_info
 from flask import *
+
+from .alb import alb_get_user_info
 
 STATIC_SITE_ROOT = None
 ACCESS_CONTROLS = None
