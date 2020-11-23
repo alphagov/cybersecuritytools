@@ -15,7 +15,7 @@ set_static_site_root(os.environ.get("STATIC_CONTENT", ""))
 
 
 @app.route("/auth")
-@add_credentials_to_session()
+@add_credentials_to_session(app)
 def handle_auth():
     """
     Handles request post ALB authentication
