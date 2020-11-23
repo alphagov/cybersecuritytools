@@ -1,6 +1,7 @@
 import os
-from static_site_wrapper_app import app
 import serverless_wsgi
+
+from .static_site_wrapper_app import app
 
 
 def lambda_handler(event, context):

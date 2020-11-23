@@ -1,8 +1,8 @@
 import os
-
-import auth
 from flask import *
-from oidc import AUTHMACHINE_URL, AuthMachineClient, no_ssl_verification
+
+import .auth
+from .oidc import AUTHMACHINE_URL, AuthMachineClient, no_ssl_verification
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("APP_SECRET", "flask-secret")
