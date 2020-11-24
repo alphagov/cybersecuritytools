@@ -10,7 +10,7 @@ from .auth import (
     set_static_site_root
 )
 
-templates = os.path.join(os.path.abspath(__file__), "templates")
+templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 LOG.debug(f"Template folder: {templates}")
 app = Flask(__name__, template_folder=templates)
 app.logger = LOG
