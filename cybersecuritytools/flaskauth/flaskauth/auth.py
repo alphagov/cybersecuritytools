@@ -112,9 +112,11 @@ def check_access(path, user):
     logged_in = user is not None
     controls = get_access_controls()
     allow = True
+    found = False
     # Check for content access restrictions
     for auth_path, settings in controls["paths"].items():
         if path.startswith(auth_path):
+            found = True
             access_message = settings.get("message", "You need to be granted access.")
             LOG.debug(f"Authed path: {path}")
             if not logged_in:
@@ -134,7 +136,9 @@ def check_access(path, user):
                     allow = any(role in has_set for role in required_set)
                 LOG.debug(f"RBAC status: {allow}")
 
-
+    if not found:
+        allow = logged_in
+        LOG.debug("Path not found in config - assuming authentication required")
     if not allow:
         raise AccessDeniedException(request_path=path, message=access_message)
 
