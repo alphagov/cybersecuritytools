@@ -1,6 +1,7 @@
 import os
 
 from flask import *
+from logger import LOG
 
 from .auth import (
     add_credentials_to_session,
@@ -10,8 +11,9 @@ from .auth import (
 )
 
 app = Flask(__name__)
+app.logger = LOG
 app.secret_key = os.environ.get("APP_SECRET", "flask-secret")
-set_static_site_root(os.environ.get("STATIC_CONTENT", ""))
+set_static_site_root(os.environ.get("STATIC_ROOT", ""))
 
 
 @app.route("/auth")
@@ -32,7 +34,7 @@ def handle_auth():
 @app.route("/<path:path>")
 @authorize_static(app)
 def static_site_page(path=""):
-    print("default route")
+    app.logger.debug("default route")
 
     # This can't be a send_from_directory because
     # the decorator manipulates the content and

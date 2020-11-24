@@ -3,6 +3,7 @@ import re
 from functools import wraps
 
 from flask import *
+from logger import LOG
 
 from .alb import alb_get_user_info
 
@@ -110,7 +111,7 @@ def check_access(path, user):
     for auth_path, settings in controls["paths"].items():
         if path.startswith(auth_path):
             access_message = settings.get("message", "You need to be granted access.")
-            print(f"Authed path: {path}")
+            LOG.debug(f"Authed path: {path}")
             if settings.get("open_access", False) or not logged_in:
                 allow = False
             else:
@@ -140,7 +141,7 @@ def authorize_or_redirect(app, denied_route="/access-denied"):
         @wraps(route_function)
         def decorated_function(*args, **kwargs):
             path = request.path
-            print(f"URL: {path}")
+            app.logger.debug(f"URL: {path}")
 
             try:
                 check_access(path, session.get("user_info"))
@@ -175,7 +176,7 @@ def authorize_or_errorhandler(app):
         @wraps(route_function)
         def decorated_function(*args, **kwargs):
             path = request.path
-            print(f"URL: {path}")
+            app.logger.debug(f"URL: {path}")
 
             check_access(path, session.get("user_info"))
             response = route_function(*args, **kwargs)
@@ -199,7 +200,7 @@ def authorize_static(app):
             response = route_function(*args, **kwargs)
             path = request.path
 
-            print(f"URL: {path}")
+            app.logger.debug(f"URL: {path}")
 
             # Don't access control asset files
             ext = path.split(".").pop()
@@ -291,7 +292,7 @@ def make_default_response(path):
     """
     if path.endswith("/") or len(path) == 0:
         path = f"{path}index.html"
-        print(f"Path: {path}")
+        LOG.debug(f"Path: {path}")
 
     content = get_static_file_content(path)
     response = make_response(content)
