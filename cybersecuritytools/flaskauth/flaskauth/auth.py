@@ -117,7 +117,7 @@ def check_access(path, user):
     for auth_path, settings in controls["paths"].items():
         if path.startswith(auth_path):
             found = True
-            access_message = settings.get("message", "You need to be granted access.")
+            access_message = settings.get("message", "You need to authenticate.")
             LOG.debug(f"Authed path: {path}")
             if not logged_in:
                 allow = settings.get("open_access", False)
@@ -138,6 +138,7 @@ def check_access(path, user):
 
     if not found:
         allow = logged_in
+        access_message = "You need to authenticate."
         LOG.debug("Path not found in config - assuming authentication required")
     if not allow:
         raise AccessDeniedException(request_path=path, message=access_message)
