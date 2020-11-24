@@ -105,6 +105,9 @@ def check_access(path, user):
 
     If logged out the user is None
     """
+    if path.endswith("/") or len(path) == 0:
+        path = f"{path}index.html"
+
     LOG.debug(f"Invoke check_access for path: {path}")
     logged_in = user is not None
     controls = get_access_controls()
