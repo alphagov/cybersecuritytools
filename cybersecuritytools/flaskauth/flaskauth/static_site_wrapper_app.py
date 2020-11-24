@@ -10,7 +10,8 @@ from .auth import (
     set_static_site_root
 )
 
-app = Flask(__name__)
+templates = os.path.join(os.path.abspath(__file__), "templates")
+app = Flask(__name__, template_folder=templates)
 app.logger = LOG
 app.secret_key = os.environ.get("APP_SECRET", "flask-secret")
 set_static_site_root(os.environ.get("STATIC_ROOT", ""))
