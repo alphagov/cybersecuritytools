@@ -39,7 +39,7 @@ def add_credentials_to_session(app):
     def decorator(route_function):
         @wraps(route_function)
         def decorated_function(*args, **kwargs):
-            if app.config.get("ENV", "production") == "production":
+            if app.config.get("ENV", "debug") == "production":
                 try:
                     user_info = alb_get_user_info(
                         request.headers["X-Amzn-Oidc-Data"],
