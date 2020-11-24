@@ -114,12 +114,11 @@ def check_access(path, user):
         if path.startswith(auth_path):
             access_message = settings.get("message", "You need to be granted access.")
             LOG.debug(f"Authed path: {path}")
-            if settings.get("open_access", False) and not logged_in:
-                allow = False
+            if not logged_in:
+                allow = settings.get("open_access", False)
                 LOG.debug("Access restricted by login status")
             else:
                 # Only check roles if auth required and logged in
-
                 if "require_all" in settings:
                     # require user has all the roles specified
                     required_set = set(settings["require_all"])
