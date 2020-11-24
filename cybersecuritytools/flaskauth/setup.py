@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/alphagov/cybersecuritytools",
     packages=setuptools.find_packages(),
+    package_data={
+        'templates': ['templates/*'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
