@@ -38,8 +38,8 @@ def alb_get_user_info(encoded_jwt, verify=True):
     """
     Process a JWT token to check that it is valid
     """
-    LOG.debug("login")
-    print(encoded_jwt)
+    LOG.debug("alb_get_user_info")
+    LOG.debug(encoded_jwt)
     kid = get_kid(encoded_jwt)
     public_key = PUBLIC_KEYS.get(kid, None)
     if not public_key:

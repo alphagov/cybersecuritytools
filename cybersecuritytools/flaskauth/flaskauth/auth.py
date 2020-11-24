@@ -39,6 +39,7 @@ def add_credentials_to_session(app):
     def decorator(route_function):
         @wraps(route_function)
         def decorated_function(*args, **kwargs):
+            app.logger.debug("Add credentials to session")
             if app.config.get("ENV", "debug") == "production":
                 try:
                     user_info = alb_get_user_info(
@@ -49,7 +50,7 @@ def add_credentials_to_session(app):
                     session["production_session"] = True
                     session["user_info"] = user_info
                 except Exception as error:
-                    print(error)
+                    app.logger.error(error)
                     session.clear()
 
             else:
