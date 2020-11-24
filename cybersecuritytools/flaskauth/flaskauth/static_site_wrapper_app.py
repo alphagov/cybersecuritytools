@@ -11,6 +11,7 @@ from .auth import (
 )
 
 templates = os.path.join(os.path.abspath(__file__), "templates")
+LOG.debug(f"Template folder: {templates}")
 app = Flask(__name__, template_folder=templates)
 app.logger = LOG
 app.secret_key = os.environ.get("APP_SECRET", "flask-secret")
