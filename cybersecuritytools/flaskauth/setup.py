@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/alphagov/cybersecuritytools",
     packages=setuptools.find_packages(),
     package_data={
-        'templates': ['templates/*'],
+        "gds_flask_auth": ["templates/*"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
