@@ -278,9 +278,12 @@ def insert_denied_component(content, authorised_path, access_message):
         authorised_path=authorised_path,
         access_message=access_message,
     )
-    main_start = content.index("<main")
-    main_close = content.index("</main>") + 7
-    content = content[0:main_start] + denied_content + content[main_close:]
+    try:
+        main_start = content.index("<main")
+        main_close = content.index("</main>") + 7
+        content = content[0:main_start] + denied_content + content[main_close:]
+    except ValueError:
+        LOG.debug(f"Main tag not found in content for: {authorised_path}")
     return content
 
 
