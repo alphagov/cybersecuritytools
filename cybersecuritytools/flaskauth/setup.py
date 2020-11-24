@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="gds_flask_auth",
+    name="flaskauth",
     version="0.0.1",
     author="GDS Cyber Security",
     author_email="cyber.security@digital.cabinet-office.gov.uk",
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/alphagov/cybersecuritytools",
     packages=setuptools.find_packages(),
     package_data={
-        "gds_flask_auth": ["templates/*"],
+        "flaskauth": ["templates/*"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
