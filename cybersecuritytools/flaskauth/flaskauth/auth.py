@@ -104,6 +104,7 @@ def check_access(path, user):
 
     If logged out the user is None
     """
+    LOG.debug(f"Invoke check_access for path: {path}")
     logged_in = user is not None
     controls = get_access_controls()
     allow = True
@@ -112,10 +113,12 @@ def check_access(path, user):
         if path.startswith(auth_path):
             access_message = settings.get("message", "You need to be granted access.")
             LOG.debug(f"Authed path: {path}")
-            if settings.get("open_access", False) or not logged_in:
+            if settings.get("open_access", False) and not logged_in:
                 allow = False
+                LOG.debug("Access restricted by login status")
             else:
                 # Only check roles if auth required and logged in
+
                 if "require_all" in settings:
                     # require user has all the roles specified
                     required_set = set(settings["require_all"])
@@ -126,6 +129,8 @@ def check_access(path, user):
                     required_set = set(settings["require_any"])
                     has_set = set(user.get("roles", []))
                     allow = any(role in has_set for role in required_set)
+                LOG.debug(f"RBAC status: {allow}")
+
 
     if not allow:
         raise AccessDeniedException(request_path=path, message=access_message)
@@ -274,6 +279,7 @@ def get_static_file_content(path):
     """
     Get the file content from a path in the static site
     """
+    LOG.debug(f"Invoke get_static_site_content for path: {path}")
     try:
         with open(f"{STATIC_SITE_ROOT}{path}", "r") as content_file:
             content = content_file.read()
@@ -292,7 +298,8 @@ def make_default_response(path):
     """
     if path.endswith("/") or len(path) == 0:
         path = f"{path}index.html"
-        LOG.debug(f"Path: {path}")
+
+    LOG.debug(f"Invoke make_default_response for path: {path}")
 
     content = get_static_file_content(path)
     response = make_response(content)
