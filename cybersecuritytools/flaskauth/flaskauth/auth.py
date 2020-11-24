@@ -88,6 +88,7 @@ def get_access_controls():
             controls = json.loads(control_file.read())
             controls["access_file"] = access_file
         ACCESS_CONTROLS = controls
+        LOG.debug(controls)
 
     return ACCESS_CONTROLS
 
