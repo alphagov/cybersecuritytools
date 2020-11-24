@@ -19,6 +19,7 @@ set_static_site_root(os.environ.get("STATIC_ROOT", ""))
 
 
 @app.route("/auth")
+@app.route("/oauth2/idpresponse")
 @add_credentials_to_session(app)
 def handle_auth():
     """
