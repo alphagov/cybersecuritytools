@@ -25,6 +25,7 @@ def handle_auth():
     """
     Handles request post ALB authentication
     """
+    LOG.debug("Handle auth")
     if "request_path" in session:
         redirect_path = session["request_path"]
         del session["request_path"]
