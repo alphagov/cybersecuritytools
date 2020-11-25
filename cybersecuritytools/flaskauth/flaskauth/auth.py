@@ -3,7 +3,7 @@ import re
 from functools import wraps
 
 from flask import *
-from logger import LOG
+from jsonlogger import LOG
 
 from .alb import alb_get_user_info
 

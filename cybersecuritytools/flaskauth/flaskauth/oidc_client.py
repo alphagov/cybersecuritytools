@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 
 from flask import *
-from logger import LOG
+from jsonlogger import LOG
 from oic import rndstr
 from oic.oauth2 import AuthorizationResponse
 from oic.oic import Client

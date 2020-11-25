@@ -3,7 +3,7 @@ import json
 
 import jwt
 import requests
-from logger import LOG
+from jsonlogger import LOG
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html
 
 PUBLIC_KEYS = {}

@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=[
         "boto3",
         "flask",
-        "logger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=logger&subdirectory=cybersecuritytools/logger",
+        "jsonlogger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=jsonlogger&subdirectory=cybersecuritytools/jsonlogger",
         "oic",
         "pyjwt",
         "requests",

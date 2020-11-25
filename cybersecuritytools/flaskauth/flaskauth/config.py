@@ -3,7 +3,7 @@ import os
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, ParamValidationError
 
-from logger import LOG
+from jsonlogger import LOG
 
 def load_ssm_parameters(app):
     ssm_parameters_retrieved = True

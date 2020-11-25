@@ -1,7 +1,7 @@
 import os
 
 from flask import *
-from logger import LOG
+from jsonlogger import LOG
 
 from .auth import (
     add_credentials_to_session,

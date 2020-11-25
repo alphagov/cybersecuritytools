@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="logger",
+    name="jsonlogger",
     version="0.0.1",
     author="GDS Cyber Security",
     author_email="cyber.security@digital.cabinet-office.gov.uk",
