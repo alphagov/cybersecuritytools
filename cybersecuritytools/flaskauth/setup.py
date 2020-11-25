@@ -22,11 +22,13 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
+        "boto3",
         "flask",
-        "serverless_wsgi",
+        "logger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=logger&subdirectory=cybersecuritytools/logger",
+        "oic",
         "pyjwt",
         "requests",
-        "logger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=logger&subdirectory=cybersecuritytools/logger",
+        "serverless_wsgi",
     ],
     python_requires=">=3.6",
 )

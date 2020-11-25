@@ -8,7 +8,7 @@
         {% if "user_info" in session %}
         <a class="govuk-header__link" href="/logout">Logout</a>
         {% else %}
-        <a class="govuk-header__link" href="/auth">Login</a>
+        <a class="govuk-header__link" href="{{ '/auth' if auth_mode == 'alb' else '/login' }}">Login</a>
         {% endif %}
     </li>
 </ul>
