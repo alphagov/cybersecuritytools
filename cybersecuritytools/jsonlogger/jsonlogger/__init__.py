@@ -48,4 +48,4 @@ def build_logger(log_name, log_level="ERROR"):
 
 
 LOG_LEVEL = str(os.getenv("LOG_LEVEL", "ERROR"))
-LOG = build_logger("alert_controller", log_level=LOG_LEVEL)
+LOG = build_logger("json_logger", log_level=LOG_LEVEL)
