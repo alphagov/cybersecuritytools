@@ -140,7 +140,7 @@ def get_access_token(auth_response, redirect_to):
         scope=CONFIG["scope"],
         state=auth_response['state'],
         request_args=args,
-        authn_method='client_secret_basic')
+        authn_method='client_secret_post')
 
     LOG.debug("Token response: " + str(token_response))
 
