@@ -106,7 +106,7 @@ def get_userinfo(auth_response):
     Make userinfo request
     """
     client = get_client()
-    token = get_access_token(auth_response)
+    token = get_access_token(auth_response, request.host_url)
     CONFIG["token"] = token
 
     roles = get_user_roles(token)
