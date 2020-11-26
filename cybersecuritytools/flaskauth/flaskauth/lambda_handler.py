@@ -10,5 +10,4 @@ def lambda_handler(event, context):
     Lambda handler entry point
     """
     load_ssm_parameters(app)
-    app.secret_key = os.getenv("SECRET_KEY", "FALSE")
     return serverless_wsgi.handle_request(app, event, context)

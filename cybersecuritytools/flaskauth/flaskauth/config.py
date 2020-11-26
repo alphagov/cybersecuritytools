@@ -5,6 +5,8 @@ from botocore.exceptions import ClientError, NoCredentialsError, ParamValidation
 
 from jsonlogger import LOG
 
+CONFIG = {}
+
 def load_ssm_parameters(app):
     ssm_parameters_retrieved = True
     try:
@@ -33,8 +35,10 @@ def load_ssm_parameters(app):
                         LOG.debug("Set app property: %s from ssm", config_var_name)
                         app.secret_key = param["Value"]
 
-                    app.config[config_var_name] = param["Value"]
+                    CONFIG[config_var_name] = param["Value"]
                     LOG.debug("Set config var: %s from ssm", config_var_name)
+
+        app.config = CONFIG
 
     except (ClientError, KeyError, ValueError) as error:
         LOG.error(error)

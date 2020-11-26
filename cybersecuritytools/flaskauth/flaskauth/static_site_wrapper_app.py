@@ -23,7 +23,6 @@ LOG.debug(f"Template folder: {templates}")
 app = Flask(__name__, template_folder=templates)
 app.logger = LOG
 set_static_site_root(os.environ.get("STATIC_ROOT", ""))
-app.secret_key = os.environ.get("APP_SECRET", "flask-secret")
 app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
 
 if app.config["auth_mode"] == "flask":
