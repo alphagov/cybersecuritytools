@@ -31,7 +31,7 @@ cst sub1 sub2 command
 
 # Developing
 
-Install (pyenv)[https://github.com/pyenv/pyenv] then install Python 3.6, 3.7, and 3.8.
+Install [pyenv](https://github.com/pyenv/pyenv) then install Python 3.6, 3.7, and 3.8.
 
 Find the latest python versions
 ``` sh
