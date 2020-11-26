@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from flask import *
 from jsonlogger import LOG
 from oic import rndstr
-from oic.oauth2 import AuthorizationResponse
+from oic.oauth2 import AuthorizationResponse, OauthMessageFactory
 from oic.oic import Client
 from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 
@@ -45,7 +45,7 @@ class FlaskSessionClient(Client):
             sformat = "json",
             state = "",
             **kwargs
-    ) -> Message:
+    ):
 
         message = super(self).parse_response(
             self,
