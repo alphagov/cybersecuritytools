@@ -16,6 +16,7 @@ def get_host():
 
 
 def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile email roles"):
+    LOG.debug(f"Set oidc config for: {endpoint}")
     CONFIG["endpoint"] = endpoint
     CONFIG["client_id"] = client_id
     CONFIG["client_secret"] = client_secret
@@ -23,13 +24,13 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
 
 
 def get_client():
+    LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
     if "client" not in CONFIG:
         client = Client(client_authn_method={
             'client_secret_post': ClientSecretPost,
             'client_secret_basic': ClientSecretBasic
         })
         client.provider_config(CONFIG["endpoint"])
-        LOG.debug(CONFIG["endpoint"])
         client.client_id = CONFIG["client_id"]
         client.client_secret = CONFIG["client_secret"]
 
@@ -42,6 +43,7 @@ def get_authorization_url(redirect_to):
     """
     Get login url
     """
+    LOG.debug("Get OIDC authorization URL")
     nonce = rndstr()
     client = get_client()
 
