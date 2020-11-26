@@ -29,6 +29,7 @@ def get_client():
             'client_secret_basic': ClientSecretBasic
         })
         client.provider_config(CONFIG["endpoint"])
+        LOG.debug(CONFIG["endpoint"])
         client.client_id = CONFIG["client_id"]
         client.client_secret = CONFIG["client_secret"]
 
