@@ -21,8 +21,7 @@ class FlaskSessionClient(Client):
             config=None,
             client_cert=None,
             timeout=5,
-            message_factory = OauthMessageFactory,
-            session=session,
+            message_factory = OauthMessageFactory
     ):
         super(Client, self).__init__(
             self,
@@ -35,6 +34,8 @@ class FlaskSessionClient(Client):
             timeout,
             message_factory
         )
+
+    def set_session(self, session):
         self.session = session
         self.grant = self.session.get("grant", {})
 
@@ -83,9 +84,9 @@ def get_client():
             client_authn_method={
                 'client_secret_post': ClientSecretPost,
                 'client_secret_basic': ClientSecretBasic
-            },
-            session=session
+            }
         )
+        client.set_session(session)
         client.provider_config(CONFIG["endpoint"])
         client.client_id = CONFIG["client_id"]
         client.client_secret = CONFIG["client_secret"]
