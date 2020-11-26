@@ -1,61 +1,90 @@
+import json
 from urllib.parse import urlencode
 
 from flask import *
 from jsonlogger import LOG
 from oic import rndstr
-from oic.oauth2 import AuthorizationResponse, OauthMessageFactory
+from oic.oauth2 import AuthorizationResponse, OauthMessageFactory, Grant
 from oic.oic import Client
 from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 
 CONFIG = {}
 
 
-class FlaskSessionClient(Client):
-
-    def __init__(
-            self,
-            client_id=None,
-            client_authn_method=None,
-            keyjar=None,
-            verify_ssl=True,
-            config=None,
-            client_cert=None,
-            timeout=5,
-            message_factory = OauthMessageFactory
-    ):
-        super(Client, self).__init__(
-            client_id,
-            client_authn_method,
-            keyjar,
-            verify_ssl,
-            config,
-            client_cert,
-            timeout,
-            message_factory
-        )
-
-    def set_session(self, session):
-        self.session = session
-        self.grant = self.session.get("grant", {})
-
-    def parse_response(
-            self,
-            response,
-            info = "",
-            sformat = "json",
-            state = "",
-            **kwargs
-    ):
-
-        message = super(Client, self).parse_response(
-            response,
-            info,
-            sformat,
-            state,
-            ** kwargs
-        )
-        self.session["grant"] = self.grant
-        return message
+# class FlaskSessionClient(Client):
+#
+#     def __init__(
+#             self,
+#             client_id=None,
+#             client_authn_method=None,
+#             keyjar=None,
+#             verify_ssl=True,
+#             config=None,
+#             client_cert=None,
+#             timeout=5,
+#             message_factory = OauthMessageFactory
+#     ):
+#         super(Client, self).__init__(
+#             client_id,
+#             client_authn_method,
+#             keyjar,
+#             verify_ssl,
+#             config,
+#             client_cert,
+#             timeout,
+#             message_factory
+#         )
+#         self.grant_class = FlaskSessionGrant
+#
+#     def parse_response(
+#             self,
+#             response,
+#             info="",
+#             sformat="json",
+#             state="",
+#             **kwargs
+#     ):
+#         message = super(Client, self).parse_response(
+#             response,
+#             info,
+#             sformat,
+#             state,
+#             **kwargs
+#         )
+#         self.session["grant"] = self.grant.to_json()
+#         return message
+#
+#     def set_session(self, session):
+#         self.session = session
+#         if "grant" in session:
+#             json_grant = self.session.get("grant")
+#             grant = FlaskSessionGrant()
+#             grant.from_json(json_grant)
+#             self.grant = grant
+#
+#
+# class FlaskSessionGrant(Grant):
+#
+#     def __init__(self, exp_in=600, resp=None, seed=""):
+#         self.grant_expiration_time = 0
+#         self.exp_in = exp_in
+#         self.seed = seed
+#         self.tokens = []
+#         self.id_token = None
+#         self.code = None
+#         if resp:
+#             self.add_code(resp)
+#             self.add_token(resp)
+#
+#     def from_json(self, json_grant):
+#         dict_grant = json.loads(json_grant)
+#         for property, value in dict_grant.items():
+#             setattr(self, property, value)
+#
+#     def to_json(self):
+#         dict_grant = vars(self)
+#         json_grant = json.dumps(dict_grant, default=str)
+#         return json_grant
 
 
 def get_host():
@@ -74,17 +103,16 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
 def get_client():
 
     client = None
-    if "endpoint" in CONFIG:
-        LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
-        # if CONFIG.get("client"):
+    if "endpoint" in CONFIG and not client:
         # Check CONFIG has a client key and it is not None
-        client = FlaskSessionClient(
+        LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
+        client = Client(
             client_authn_method={
                 'client_secret_post': ClientSecretPost,
                 'client_secret_basic': ClientSecretBasic
             }
         )
-        client.set_session(session)
+        # client.set_session(session)
         client.provider_config(CONFIG["endpoint"])
         client.client_id = CONFIG["client_id"]
         client.client_secret = CONFIG["client_secret"]
