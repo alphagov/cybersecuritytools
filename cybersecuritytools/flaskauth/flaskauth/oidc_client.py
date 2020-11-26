@@ -75,6 +75,8 @@ def get_access_token(auth_response, redirect_to):
     Get an access token
     """
     client = get_client()
+    LOG.debug(f"Auth response code: {auth_response['code']}")
+    LOG.debug(f"Auth response session_state: {auth_response['session_state']}")
     args = {
         'code': auth_response['code'],
         'client_id': client.client_id,
@@ -83,7 +85,7 @@ def get_access_token(auth_response, redirect_to):
     }
     response = client.do_access_token_request(
         scope=CONFIG["scope"],
-        state=auth_response['state'],
+        state=auth_response['session_state'],
         request_args=args,
         authn_method='client_secret_post')
 
