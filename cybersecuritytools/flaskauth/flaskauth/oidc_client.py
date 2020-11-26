@@ -10,6 +10,55 @@ from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 CONFIG = {}
 
 
+class FlaskSessionClient(Client):
+
+    def __init__(
+            self,
+            client_id=None,
+            client_authn_method=None,
+            keyjar=None,
+            verify_ssl=True,
+            config=None,
+            client_cert=None,
+            timeout=5,
+            message_factory: Type[MessageFactory] = OauthMessageFactory,
+            session=session,
+    ):
+        super(self).__init__(
+            self,
+            client_id,
+            client_authn_method,
+            keyjar,
+            verify_ssl,
+            config,
+            client_cert,
+            timeout,
+            message_factory
+        )
+        self.session = session
+        self.grant = self.session.get("grant", {})
+
+    def parse_response(
+            self,
+            response: Type[Message],
+            info: str = "",
+            sformat: ENCODINGS = "json",
+            state: str = "",
+            **kwargs
+    ) -> Message:
+
+        message = super(self).parse_response(
+            self,
+            response,
+            info,
+            sformat,
+            state,
+            ** kwargs
+        )
+        self.session["grant"] = self.grant
+        return message
+
+
 def get_host():
     host = request.host_url
     return host
@@ -30,10 +79,13 @@ def get_client():
         LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
         # if CONFIG.get("client"):
         # Check CONFIG has a client key and it is not None
-        client = Client(client_authn_method={
-            'client_secret_post': ClientSecretPost,
-            'client_secret_basic': ClientSecretBasic
-        })
+        client = FlaskSessionClient(
+            client_authn_method={
+                'client_secret_post': ClientSecretPost,
+                'client_secret_basic': ClientSecretBasic
+            },
+            session=session
+        )
         client.provider_config(CONFIG["endpoint"])
         client.client_id = CONFIG["client_id"]
         client.client_secret = CONFIG["client_secret"]
