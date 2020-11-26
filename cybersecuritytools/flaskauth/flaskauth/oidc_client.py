@@ -118,9 +118,7 @@ def get_client():
         client.client_secret = CONFIG["client_secret"]
 
         CONFIG["client"] = client
-    else:
-        LOG.error("OIDC client settings not available")
-
+    
     return CONFIG["client"]
 
 
