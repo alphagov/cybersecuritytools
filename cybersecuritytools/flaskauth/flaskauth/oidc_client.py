@@ -28,15 +28,15 @@ def get_client():
     client = None
     if "endpoint" in CONFIG:
         LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
-        if CONFIG.get("client"):
-            # Check CONFIG has a client key and it is not None
-            client = Client(client_authn_method={
-                'client_secret_post': ClientSecretPost,
-                'client_secret_basic': ClientSecretBasic
-            })
-            client.provider_config(CONFIG["endpoint"])
-            client.client_id = CONFIG["client_id"]
-            client.client_secret = CONFIG["client_secret"]
+        # if CONFIG.get("client"):
+        # Check CONFIG has a client key and it is not None
+        client = Client(client_authn_method={
+            'client_secret_post': ClientSecretPost,
+            'client_secret_basic': ClientSecretBasic
+        })
+        client.provider_config(CONFIG["endpoint"])
+        client.client_id = CONFIG["client_id"]
+        client.client_secret = CONFIG["client_secret"]
 
         CONFIG["client"] = client
     else:
