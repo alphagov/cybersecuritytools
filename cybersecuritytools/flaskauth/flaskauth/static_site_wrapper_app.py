@@ -32,8 +32,7 @@ if app.config["auth_mode"] == "flask":
     set_oidc_config(
         endpoint=app.config.get("oidc_root_endpoint"),
         client_id=app.config.get("oidc_client_id"),
-        client_secret=app.config.get("oidc_client_secret"),
-        redirect_to=f"https://{app.config['SERVER_NAME']}/oidc-callback"
+        client_secret=app.config.get("oidc_client_secret")
     )
 
 
@@ -55,7 +54,9 @@ def handle_auth():
 
 @app.route('/login')
 def login():
-    auth_url = get_authorization_url()
+    redirect_to = url_for("/oidc-callback")
+    session["login_redirect"] = redirect_to
+    auth_url = get_authorization_url(redirect_to)
     LOG.debug(auth_url)
     response = redirect(auth_url)
     return response
@@ -65,9 +66,12 @@ def login():
 def auth_callback():
     LOG.debug(vars(request))
     auth_response = get_authorization_response()
+
     LOG.debug("### auth response ###")
     LOG.debug(vars(auth_response))
-    session['user_info'] = get_userinfo(auth_response)
+    session['user_info'] = get_userinfo(auth_response, session["login_redirect"])
+    del (session["login_redirect"])
+
     if "request_path" in session:
         redirect_path = session["request_path"]
         del(session["request_path"])

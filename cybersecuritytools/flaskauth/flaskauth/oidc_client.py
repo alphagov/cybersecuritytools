@@ -92,12 +92,11 @@ def get_host():
     return host
 
 
-def set_oidc_config(endpoint, client_id, client_secret, redirect_to, scope="openid profile email roles"):
+def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile email roles"):
     LOG.debug(f"Set oidc config for: {endpoint}")
     CONFIG["endpoint"] = endpoint
     CONFIG["client_id"] = client_id
     CONFIG["client_secret"] = client_secret
-    CONFIG["redirect"] = redirect_to
     CONFIG["scope"] = scope
 
 
@@ -125,7 +124,7 @@ def get_client():
     return CONFIG["client"]
 
 
-def get_authorization_url():
+def get_authorization_url(redirect_to):
     """
     Get login url
     """
@@ -140,7 +139,7 @@ def get_authorization_url():
             'response_type': 'code',
             'scope': CONFIG["scope"],
             'nonce': nonce,
-            'redirect_uri': CONFIG["redirect"],
+            'redirect_uri': redirect_to,
             'state': 'some-state-which-will-be-returned-unmodified'
         }
         url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
@@ -150,7 +149,7 @@ def get_authorization_url():
     return url
 
 
-def get_access_token(auth_response):
+def get_access_token(auth_response, redirect_to):
     """
     Get an access token
     """
@@ -161,7 +160,7 @@ def get_access_token(auth_response):
         'code': auth_response['code'],
         'client_id': client.client_id,
         'client_secret': client.client_secret,
-        'redirect_uri': CONFIG["redirect"]
+        'redirect_uri': redirect_to
     }
     token_response = client.do_access_token_request(
         scope=CONFIG["scope"],
@@ -186,12 +185,12 @@ def get_user_roles(token):
     return roles
 
 
-def get_userinfo(auth_response):
+def get_userinfo(auth_response, redirect_to):
     """
     Make userinfo request
     """
     client = get_client()
-    token = get_access_token(auth_response)
+    token = get_access_token(auth_response, redirect_to)
     CONFIG["token"] = token
     LOG.debug(token.to_dict())
 
