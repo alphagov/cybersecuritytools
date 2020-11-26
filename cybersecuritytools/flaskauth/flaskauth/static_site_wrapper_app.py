@@ -54,7 +54,7 @@ def handle_auth():
 
 @app.route('/login')
 def login():
-    redirect_to = url_for("auth_callback")
+    redirect_to = f"{request.host_url}/oidc-callback"
     session["login_redirect"] = redirect_to
     auth_url = get_authorization_url(redirect_to)
     LOG.debug(auth_url)
