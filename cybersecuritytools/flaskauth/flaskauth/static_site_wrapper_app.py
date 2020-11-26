@@ -30,9 +30,10 @@ LOG.debug(app.config.keys())
 
 if app.config["auth_mode"] == "flask":
     set_oidc_config(
-        app.config.get("oidc_root_endpoint"),
-        app.config.get("oidc_client_id"),
-        app.config.get("oidc_client_secret")
+        endpoint=app.config.get("oidc_root_endpoint"),
+        client_id=app.config.get("oidc_client_id"),
+        client_secret=app.config.get("oidc_client_secret"),
+        redirect_to=f"{request.host_url}/oidc-callback"
     )
 
 

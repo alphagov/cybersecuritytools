@@ -92,11 +92,12 @@ def get_host():
     return host
 
 
-def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile email roles"):
+def set_oidc_config(endpoint, client_id, client_secret, redirect_to, scope="openid profile email roles"):
     LOG.debug(f"Set oidc config for: {endpoint}")
     CONFIG["endpoint"] = endpoint
     CONFIG["client_id"] = client_id
     CONFIG["client_secret"] = client_secret
+    CONFIG["redirect"] = redirect_to
     CONFIG["scope"] = scope
 
 
@@ -124,11 +125,10 @@ def get_client():
     return CONFIG["client"]
 
 
-def get_authorization_url(redirect_to):
+def get_authorization_url():
     """
     Get login url
     """
-    CONFIG["redirect"] = redirect_to
     LOG.debug("Get OIDC authorization URL")
     nonce = rndstr()
     client = get_client()
@@ -140,7 +140,7 @@ def get_authorization_url(redirect_to):
             'response_type': 'code',
             'scope': CONFIG["scope"],
             'nonce': nonce,
-            'redirect_uri': redirect_to,
+            'redirect_uri': CONFIG["redirect"],
             'state': 'some-state-which-will-be-returned-unmodified'
         }
         url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
