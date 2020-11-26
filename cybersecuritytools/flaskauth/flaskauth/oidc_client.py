@@ -152,7 +152,7 @@ def get_user_roles(token):
     token_dict = token.to_dict()
     try:
         roles = token_dict["id_token"]["realm_access"]["roles"]
-    except KeyError, ValueError:
+    except (KeyError, ValueError):
         roles = []
     return roles
 
