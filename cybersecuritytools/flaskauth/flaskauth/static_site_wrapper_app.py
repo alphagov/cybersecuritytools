@@ -54,7 +54,9 @@ def handle_auth():
 
 @app.route('/login')
 def login():
-    auth_url = get_authorization_url(f"{request.host_url}/oidc-callback")
+    redirect_to = f"{request.host_url}/oidc-callback"
+    LOG.debug(f"Redirect after login to: {redirect_to}")
+    auth_url = get_authorization_url(redirect_to)
     LOG.debug(auth_url)
     response = redirect(auth_url)
     return response
@@ -63,10 +65,10 @@ def login():
 @app.route('/oidc-callback')
 def auth_callback():
     LOG.debug(vars(request))
-    aresp = get_authorization_response()
+    auth_response = get_authorization_response()
     LOG.debug("### auth response ###")
-    LOG.debug(vars(aresp))
-    session['user_info'] = get_userinfo(aresp)
+    LOG.debug(vars(auth_response))
+    session['user_info'] = get_userinfo(auth_response)
     if "request_path" in session:
         redirect_path = session["request_path"]
         del(session["request_path"])
