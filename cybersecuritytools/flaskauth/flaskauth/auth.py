@@ -233,7 +233,7 @@ def authorize_static(app):
             if not passthru:
                 # Insert login status component
                 content = response.get_data().decode("utf8")
-                content = insert_login_component(content)
+                content = insert_login_component(content, app.config["auth_mode"])
 
                 try:
                     check_access(path, session.get("user_info"))
@@ -242,7 +242,7 @@ def authorize_static(app):
                     # add requested path to session to enable
                     # redirect post login
                     session["request_path"] = path
-                    content = insert_denied_component(content, path, access_message)
+                    content = insert_denied_component(content, path, access_message, app.config["auth_mode"])
 
                 response.set_data(content.encode("utf8"))
                 response.headers["Content-type"] = "text/html"
@@ -253,19 +253,23 @@ def authorize_static(app):
     return decorator
 
 
-def insert_login_component(content):
+def insert_login_component(content, auth_mode):
     """
     Show login status
 
     Adds a login status component in the nav menu
     """
     nav_end = re.compile("\<\/nav\>")
-    login_content = render_template("login.html", session=session)
+    login_content = render_template(
+        "login.html",
+        session=session,
+        auth_mode=auth_mode
+    )
     content = nav_end.sub(f"{login_content}</nav>", content, 1)
     return content
 
 
-def insert_denied_component(content, authorised_path, access_message):
+def insert_denied_component(content, authorised_path, access_message, auth_mode):
     """
     Render access denied page
 
@@ -277,6 +281,7 @@ def insert_denied_component(content, authorised_path, access_message):
         session=session,
         authorised_path=authorised_path,
         access_message=access_message,
+        auth_mode=auth_mode
     )
     try:
         main_start = content.index("<main")
