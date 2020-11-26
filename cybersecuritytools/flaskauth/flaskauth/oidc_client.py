@@ -128,6 +128,7 @@ def get_authorization_url(redirect_to):
     """
     Get login url
     """
+    CONFIG["redirect"] = redirect_to
     LOG.debug("Get OIDC authorization URL")
     nonce = rndstr()
     client = get_client()
@@ -149,7 +150,7 @@ def get_authorization_url(redirect_to):
     return url
 
 
-def get_access_token(auth_response, redirect_to):
+def get_access_token(auth_response):
     """
     Get an access token
     """
@@ -160,7 +161,7 @@ def get_access_token(auth_response, redirect_to):
         'code': auth_response['code'],
         'client_id': client.client_id,
         'client_secret': client.client_secret,
-        'redirect_uri': redirect_to
+        'redirect_uri': CONFIG["redirect"]
     }
     token_response = client.do_access_token_request(
         scope=CONFIG["scope"],
@@ -190,7 +191,7 @@ def get_userinfo(auth_response):
     Make userinfo request
     """
     client = get_client()
-    token = get_access_token(auth_response, request.url)
+    token = get_access_token(auth_response)
     CONFIG["token"] = token
     LOG.debug(token.to_dict())
 
