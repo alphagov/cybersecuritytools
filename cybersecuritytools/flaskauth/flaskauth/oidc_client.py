@@ -24,7 +24,7 @@ class FlaskSessionClient(Client):
             message_factory = OauthMessageFactory,
             session=session,
     ):
-        super(Client).__init__(
+        super(Client, self).__init__(
             self,
             client_id,
             client_authn_method,
@@ -47,7 +47,7 @@ class FlaskSessionClient(Client):
             **kwargs
     ):
 
-        message = super(Client).parse_response(
+        message = super(Client, self).parse_response(
             self,
             response,
             info,
