@@ -38,8 +38,6 @@ def load_ssm_parameters(app):
                     CONFIG[config_var_name] = param["Value"]
                     LOG.debug("Set config var: %s from ssm", config_var_name)
 
-        app.config = CONFIG
-
     except (ClientError, KeyError, ValueError) as error:
         LOG.error(error)
         ssm_parameters_retrieved = False
