@@ -102,7 +102,7 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
 
 def get_client():
 
-    client = None
+    client = CONFIG.get("client")
     if "endpoint" in CONFIG and not client:
         # Check CONFIG has a client key and it is not None
         LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
