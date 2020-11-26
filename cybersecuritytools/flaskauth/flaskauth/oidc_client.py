@@ -83,15 +83,15 @@ def get_access_token(auth_response, redirect_to):
         'client_secret': client.client_secret,
         'redirect_uri': redirect_to
     }
-    response = client.do_access_token_request(
+    token_response = client.do_access_token_request(
         scope=CONFIG["scope"],
-        state=auth_response['session_state'],
+        state=auth_response['state'],
         request_args=args,
-        authn_method='client_secret_post')
+        authn_method='client_secret_basic')
 
-    LOG.debug("Token response: " + str(response))
+    LOG.debug("Token response: " + str(token_response))
 
-    return response
+    return token_response
 
 
 def get_user_roles(token):
