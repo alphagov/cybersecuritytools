@@ -24,17 +24,20 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
 
 
 def get_client():
-    LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
-    if "client" not in CONFIG:
-        client = Client(client_authn_method={
-            'client_secret_post': ClientSecretPost,
-            'client_secret_basic': ClientSecretBasic
-        })
-        client.provider_config(CONFIG["endpoint"])
-        client.client_id = CONFIG["client_id"]
-        client.client_secret = CONFIG["client_secret"]
 
-    CONFIG["client"] = client
+    client = None
+    if "endpoint" in CONFIG:
+        LOG.debug(f"Create OIDC client for: {CONFIG['endpoint']}")
+        if "client" not in CONFIG:
+            client = Client(client_authn_method={
+                'client_secret_post': ClientSecretPost,
+                'client_secret_basic': ClientSecretBasic
+            })
+            client.provider_config(CONFIG["endpoint"])
+            client.client_id = CONFIG["client_id"]
+            client.client_secret = CONFIG["client_secret"]
+
+        CONFIG["client"] = client
 
     return CONFIG["client"]
 
@@ -47,15 +50,18 @@ def get_authorization_url(redirect_to):
     nonce = rndstr()
     client = get_client()
 
-    args = {
-        'client_id': client.client_id,
-        'response_type': 'code',
-        'scope': CONFIG["scope"],
-        'nonce': nonce,
-        'redirect_uri': redirect_to,
-        'state': 'some-state-which-will-be-returned-unmodified'
-    }
-    url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
+    url = None
+    if client:
+        args = {
+            'client_id': client.client_id,
+            'response_type': 'code',
+            'scope': CONFIG["scope"],
+            'nonce': nonce,
+            'redirect_uri': redirect_to,
+            'state': 'some-state-which-will-be-returned-unmodified'
+        }
+        url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
+
     return url
 
 
