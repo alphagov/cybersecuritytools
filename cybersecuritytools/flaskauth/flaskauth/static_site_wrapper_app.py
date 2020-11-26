@@ -9,7 +9,7 @@ from .auth import (
     make_default_response,
     set_static_site_root
 )
-from .config import CONFIG
+from .config import load_ssm_parameters
 from .oidc_client import (
     set_oidc_config,
     get_authorization_url,
@@ -23,9 +23,9 @@ LOG.debug(f"Template folder: {templates}")
 
 app = Flask(__name__, template_folder=templates)
 app.logger = LOG
+load_ssm_parameters(app)
 set_static_site_root(os.environ.get("STATIC_ROOT", ""))
 app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
-app.config.update(CONFIG)
 LOG.debug(app.config.keys())
 
 if app.config["auth_mode"] == "flask":
