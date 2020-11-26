@@ -38,6 +38,8 @@ def get_client():
             client.client_secret = CONFIG["client_secret"]
 
         CONFIG["client"] = client
+    else:
+        LOG.error("OIDC client settings not available")
 
     return CONFIG["client"]
 
@@ -61,6 +63,8 @@ def get_authorization_url(redirect_to):
             'state': 'some-state-which-will-be-returned-unmodified'
         }
         url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
+    else:
+        LOG.error("OIDC client not initialised")
 
     return url
 
