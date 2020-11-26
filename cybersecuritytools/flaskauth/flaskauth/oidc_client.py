@@ -150,7 +150,10 @@ def get_user_roles(token):
     Get roles list from user_info
     """
     token_dict = token.to_dict()
-    roles = token_dict["id_token"]["realm_access"]["roles"]
+    try:
+        roles = token_dict["id_token"]["realm_access"]["roles"]
+    except KeyError, ValueError:
+        roles = []
     return roles
 
 
@@ -161,6 +164,7 @@ def get_userinfo(auth_response):
     client = get_client()
     token = get_access_token(auth_response, request.url)
     CONFIG["token"] = token
+    LOG.debug(token.to_dict())
 
     roles = get_user_roles(token)
 
