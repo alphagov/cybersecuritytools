@@ -70,6 +70,6 @@ with a suffix of `_test`.  For example if your file is
 # Committing
 * Add documentation for any changes you've made.
 * Ensure there are tests covering your changes
-* Update the (detect-secrets)[https://github.com/Yelp/detect-secrets] file (`.secrets.baseline`)[.secrets.baseline]
+* Update the [detect-secrets](https://github.com/Yelp/detect-secrets) file [`.secrets.baseline`](.secrets.baseline)
 * Run `tox`, all tests, formatting, and linting must pass.
-* Update the (CODEOWNERS)[CODEOWNERS] file if needed.
+* Update the [CODEOWNERS](CODEOWNERS) file if needed.
