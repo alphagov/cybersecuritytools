@@ -26,6 +26,7 @@ app.logger = LOG
 set_static_site_root(os.environ.get("STATIC_ROOT", ""))
 app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
 app.config.update(CONFIG)
+LOG.debug(app.config.keys())
 
 if app.config["auth_mode"] == "flask":
     set_oidc_config(
