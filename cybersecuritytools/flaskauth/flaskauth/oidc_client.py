@@ -21,7 +21,7 @@ class FlaskSessionClient(Client):
             config=None,
             client_cert=None,
             timeout=5,
-            message_factory: Type[MessageFactory] = OauthMessageFactory,
+            message_factory = OauthMessageFactory,
             session=session,
     ):
         super(self).__init__(
@@ -40,10 +40,10 @@ class FlaskSessionClient(Client):
 
     def parse_response(
             self,
-            response: Type[Message],
-            info: str = "",
-            sformat: ENCODINGS = "json",
-            state: str = "",
+            response,
+            info = "",
+            sformat = "json",
+            state = "",
             **kwargs
     ) -> Message:
 
