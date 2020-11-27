@@ -23,6 +23,7 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
     CONFIG["client_id"] = client_id
     CONFIG["client_secret"] = client_secret
     CONFIG["scope"] = scope
+    CONFIG["state"] = rndstr(size=128)
 
 
 def get_client():
@@ -63,7 +64,7 @@ def get_authorization_url(redirect_to):
             'scope': CONFIG["scope"],
             'nonce': nonce,
             'redirect_uri': redirect_to,
-            'state': 'some-state-which-will-be-returned-unmodified'
+            'state': CONFIG["state"]
         }
         url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
     else:
@@ -76,23 +77,27 @@ def get_access_token(auth_response, redirect_to):
     """
     Get an access token
     """
-    client = get_client()
-    LOG.debug(f"Auth response code: {auth_response['code']}")
-    LOG.debug(f"Auth response session_state: {auth_response['session_state']}")
-    args = {
-        'code': auth_response['code'],
-        'client_id': client.client_id,
-        'client_secret': client.client_secret,
-        'redirect_uri': redirect_to
-    }
-    token_response = client.do_access_token_request(
-        scope=CONFIG["scope"],
-        state=auth_response['state'],
-        request_args=args,
-        authn_method='client_secret_post')
 
-    LOG.debug("Token response: " + str(token_response))
-    CONFIG["token"] = token_response
+    if auth_response["state"] != CONFIG["state"]:
+        raise AccessDenied("State tampering")
+    else:
+        client = get_client()
+        LOG.debug(f"Auth response code: {auth_response['code']}")
+        LOG.debug(f"Auth response session_state: {auth_response['session_state']}")
+        args = {
+            'code': auth_response['code'],
+            'client_id': client.client_id,
+            'client_secret': client.client_secret,
+            'redirect_uri': redirect_to
+        }
+        token_response = client.do_access_token_request(
+            scope=CONFIG["scope"],
+            state=auth_response['state'],
+            request_args=args,
+            authn_method='client_secret_post')
+
+        LOG.debug("Token response: " + str(token_response))
+        CONFIG["token"] = token_response
 
     return token_response
 
