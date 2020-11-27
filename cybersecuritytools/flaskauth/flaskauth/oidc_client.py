@@ -6,6 +6,7 @@ from jsonlogger import LOG
 from oic import rndstr
 from oic.oauth2 import AuthorizationResponse, OauthMessageFactory, Grant
 from oic.oic import Client
+from oic.exception import AccessDenied
 from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 
 CONFIG = {}
@@ -111,18 +112,21 @@ def get_userinfo(auth_response, redirect_to):
     """
     Make userinfo request
     """
-    client = get_client()
-    token = get_access_token(auth_response, redirect_to)
-    CONFIG["token"] = token
-    LOG.debug(token.to_dict())
+    try:
+        client = get_client()
+        token = get_access_token(auth_response, redirect_to)
+        CONFIG["token"] = token
+        LOG.debug(token.to_dict())
 
-    roles = get_user_roles(token)
+        roles = get_user_roles(token)
 
-    user_info = client.do_user_info_request(
-        state=auth_response['state'],
-        authn_method='client_secret_post')
-    user_info_dict = user_info.to_dict()
-    user_info_dict["roles"] = roles
+        user_info = client.do_user_info_request(
+            state=auth_response['state'],
+            authn_method='client_secret_post')
+        user_info_dict = user_info.to_dict()
+        user_info_dict["roles"] = roles
+    except AccessDenied:
+        user_info_dict = None
     return user_info_dict
 
 

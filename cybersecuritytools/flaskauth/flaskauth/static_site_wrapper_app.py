@@ -70,6 +70,7 @@ def auth_callback():
     LOG.debug("### auth response ###")
     LOG.debug(vars(auth_response))
     session['user_info'] = get_userinfo(auth_response, session["login_redirect"])
+    
     del (session["login_redirect"])
 
     if "request_path" in session:
