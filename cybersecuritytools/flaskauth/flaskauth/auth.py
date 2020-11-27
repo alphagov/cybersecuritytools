@@ -239,9 +239,6 @@ def authorize_static(app):
                     check_access(path, session.get("user_info"))
                 except AccessDeniedException as error:
                     access_message = error.message
-                    # add requested path to session to enable
-                    # redirect post login
-                    session["request_path"] = path
                     content = insert_denied_component(content, path, access_message, app.config["auth_mode"])
 
                 response.set_data(content.encode("utf8"))
@@ -287,6 +284,9 @@ def insert_denied_component(content, authorised_path, access_message, auth_mode)
         main_start = content.index("<main")
         main_close = content.index("</main>") + 7
         content = content[0:main_start] + denied_content + content[main_close:]
+        # add requested path to session to enable
+        # redirect post login
+        session["request_path"] = authorised_path
     except ValueError:
         LOG.debug(f"Main tag not found in content for: {authorised_path}")
     return content

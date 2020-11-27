@@ -11,82 +11,6 @@ from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 CONFIG = {}
 
 
-# class FlaskSessionClient(Client):
-#
-#     def __init__(
-#             self,
-#             client_id=None,
-#             client_authn_method=None,
-#             keyjar=None,
-#             verify_ssl=True,
-#             config=None,
-#             client_cert=None,
-#             timeout=5,
-#             message_factory = OauthMessageFactory
-#     ):
-#         super(Client, self).__init__(
-#             client_id,
-#             client_authn_method,
-#             keyjar,
-#             verify_ssl,
-#             config,
-#             client_cert,
-#             timeout,
-#             message_factory
-#         )
-#         self.grant_class = FlaskSessionGrant
-#
-#     def parse_response(
-#             self,
-#             response,
-#             info="",
-#             sformat="json",
-#             state="",
-#             **kwargs
-#     ):
-#         message = super(Client, self).parse_response(
-#             response,
-#             info,
-#             sformat,
-#             state,
-#             **kwargs
-#         )
-#         self.session["grant"] = self.grant.to_json()
-#         return message
-#
-#     def set_session(self, session):
-#         self.session = session
-#         if "grant" in session:
-#             json_grant = self.session.get("grant")
-#             grant = FlaskSessionGrant()
-#             grant.from_json(json_grant)
-#             self.grant = grant
-#
-#
-# class FlaskSessionGrant(Grant):
-#
-#     def __init__(self, exp_in=600, resp=None, seed=""):
-#         self.grant_expiration_time = 0
-#         self.exp_in = exp_in
-#         self.seed = seed
-#         self.tokens = []
-#         self.id_token = None
-#         self.code = None
-#         if resp:
-#             self.add_code(resp)
-#             self.add_token(resp)
-#
-#     def from_json(self, json_grant):
-#         dict_grant = json.loads(json_grant)
-#         for property, value in dict_grant.items():
-#             setattr(self, property, value)
-#
-#     def to_json(self):
-#         dict_grant = vars(self)
-#         json_grant = json.dumps(dict_grant, default=str)
-#         return json_grant
-
-
 def get_host():
     host = request.host_url
     return host
@@ -118,7 +42,7 @@ def get_client():
         client.client_secret = CONFIG["client_secret"]
 
         CONFIG["client"] = client
-    
+
     return CONFIG["client"]
 
 
