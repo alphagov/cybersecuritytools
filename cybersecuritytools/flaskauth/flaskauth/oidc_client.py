@@ -23,7 +23,8 @@ def set_oidc_config(endpoint, client_id, client_secret, scope="openid profile em
     CONFIG["client_id"] = client_id
     CONFIG["client_secret"] = client_secret
     CONFIG["scope"] = scope
-    CONFIG["state"] = rndstr(size=128)
+    if "state" not in session:
+        session["state"] = rndstr(size=128)
 
 
 def get_client():
@@ -64,7 +65,7 @@ def get_authorization_url(redirect_to):
             'scope': CONFIG["scope"],
             'nonce': nonce,
             'redirect_uri': redirect_to,
-            'state': CONFIG["state"]
+            'state': session["state"]
         }
         url = client.provider_info['authorization_endpoint'] + '?' + urlencode(args, True)
     else:
@@ -78,7 +79,7 @@ def get_access_token(auth_response, redirect_to):
     Get an access token
     """
 
-    if auth_response["state"] != CONFIG["state"]:
+    if auth_response["state"] != session["state"]:
         raise AccessDenied("State tampering")
     else:
         client = get_client()
