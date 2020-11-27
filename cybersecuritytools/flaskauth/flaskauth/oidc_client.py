@@ -92,6 +92,7 @@ def get_access_token(auth_response, redirect_to):
         authn_method='client_secret_post')
 
     LOG.debug("Token response: " + str(token_response))
+    CONFIG["token"] = token_response
 
     return token_response
 
@@ -115,7 +116,6 @@ def get_userinfo(auth_response, redirect_to):
     try:
         client = get_client()
         token = get_access_token(auth_response, redirect_to)
-        CONFIG["token"] = token
         LOG.debug(token.to_dict())
 
         roles = get_user_roles(token)
@@ -161,3 +161,7 @@ def get_logout_redirect(redirect_to):
 
     response = redirect(logout_url)
     return response
+
+
+def reset_config():
+    del CONFIG["token"]

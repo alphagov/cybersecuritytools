@@ -15,7 +15,8 @@ from .oidc_client import (
     get_authorization_url,
     get_authorization_response,
     get_userinfo,
-    get_logout_redirect
+    get_logout_redirect,
+    reset_config
 )
 
 templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
@@ -69,8 +70,11 @@ def auth_callback():
 
     LOG.debug("### auth response ###")
     LOG.debug(vars(auth_response))
-    session['user_info'] = get_userinfo(auth_response, session["login_redirect"])
-    
+    user_info = get_userinfo(auth_response, session["login_redirect"])
+    if user_info:
+        # Don't create a key in the session dict if a user is not returned
+        session["user_info"] = user_info
+
     del (session["login_redirect"])
 
     if "request_path" in session:
@@ -85,6 +89,7 @@ def auth_callback():
 @app.route('/logout')
 def logout():
     response = get_logout_redirect(request.host_url)
+
     return response
 
 
