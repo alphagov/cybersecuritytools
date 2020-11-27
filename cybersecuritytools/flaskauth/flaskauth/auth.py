@@ -94,6 +94,30 @@ def get_access_controls():
     return ACCESS_CONTROLS
 
 
+def check_role_requirement(requirement, roles):
+    """
+    Check user roles meets requirement
+
+    A requirement looks like:
+    {
+        "type": "all|any"
+        "roles: ["role_A", "role_B"]
+    }
+    """
+    allow = False
+    if requirement["type"] == "all":
+        # require user has all the roles specified
+        required_set = set(requirement["roles"])
+        has_set = set(roles)
+        allow = required_set.issubset(has_set)
+    elif requirement["type"] == "any":
+        # require user has any one of specified roles
+        required_set = set(requirement["roles"])
+        has_set = set(roles)
+        allow = any(role in has_set for role in required_set)
+    return allow
+
+
 def check_access(path, user):
     """
     Check request against defined access restrictions
@@ -125,16 +149,20 @@ def check_access(path, user):
                 LOG.debug("Access restricted by login status")
             else:
                 # Only check roles if auth required and logged in
-                if "require_all" in settings:
-                    # require user has all the roles specified
-                    required_set = set(settings["require_all"])
-                    has_set = set(user.get("roles", []))
-                    allow = required_set.issubset(has_set)
-                if "require_any" in settings:
-                    # require user has any one of specified roles
-                    required_set = set(settings["require_any"])
-                    has_set = set(user.get("roles", []))
-                    allow = any(role in has_set for role in required_set)
+                # if "require_all" in settings:
+                #     # require user has all the roles specified
+                #     required_set = set(settings["require_all"])
+                #     has_set = set(user.get("roles", []))
+                #     allow = required_set.issubset(has_set)
+                # if "require_any" in settings:
+                #     # require user has any one of specified roles
+                #     required_set = set(settings["require_any"])
+                #     has_set = set(user.get("roles", []))
+                #     allow = any(role in has_set for role in required_set)
+                if "role_requirements" in settings:
+                    for requirement in settings["role_requirements"]:
+                        allow = check_role_requirement(requirement, user.get("roles", []))
+
                 LOG.debug(f"RBAC status: {allow}")
 
     if not found:
