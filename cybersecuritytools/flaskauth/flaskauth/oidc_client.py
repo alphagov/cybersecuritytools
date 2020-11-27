@@ -49,7 +49,7 @@ def get_client():
 
 def get_session_state():
     if "state" not in session:
-        session["state"] = rndstr(size=128)
+        session["state"] = rndstr(size=64)
     return session["state"]
 
 
