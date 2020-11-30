@@ -135,8 +135,9 @@ def get_userinfo(auth_response, redirect_to):
             authn_method='client_secret_post')
         user_info_dict = user_info.to_dict()
         user_info_dict["roles"] = roles
-    except AccessDenied:
+    except AccessDenied as error:
         # rotate session state
+        LOG.error("Login failed: %s", str(error))
         get_session_state(True)
         user_info_dict = None
     return user_info_dict
