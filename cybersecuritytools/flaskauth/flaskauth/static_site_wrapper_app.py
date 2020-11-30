@@ -88,7 +88,12 @@ def auth_callback():
 
 @app.route('/logout')
 def logout():
-    response = get_logout_redirect(request.host_url)
+    if app.config["auth_mode"] == "flask":
+        response = get_logout_redirect(request.host_url)
+    else:
+        response = redirect("/")
+    if 'user_info' in session:
+        del session['user_info']
 
     return response
 

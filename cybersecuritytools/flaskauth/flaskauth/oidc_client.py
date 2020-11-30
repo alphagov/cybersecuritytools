@@ -166,9 +166,6 @@ def get_logout_redirect(redirect_to):
     }
     logout_url = client.provider_info['end_session_endpoint'] + '?' + urlencode(args, True)
 
-    if 'user_info' in session:
-        del session['user_info']
-
     response = redirect(logout_url)
     return response
 
