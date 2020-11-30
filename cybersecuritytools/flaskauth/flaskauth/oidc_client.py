@@ -47,8 +47,8 @@ def get_client():
     return CONFIG["client"]
 
 
-def get_session_state():
-    if "state" not in session:
+def get_session_state(renew=False):
+    if "state" not in session or renew:
         session["state"] = rndstr(size=64)
     return session["state"]
 
@@ -136,6 +136,8 @@ def get_userinfo(auth_response, redirect_to):
         user_info_dict = user_info.to_dict()
         user_info_dict["roles"] = roles
     except AccessDenied:
+        # rotate session state
+        get_session_state(True)
         user_info_dict = None
     return user_info_dict
 
