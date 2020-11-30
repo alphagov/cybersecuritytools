@@ -268,6 +268,7 @@ def authorize_static(app):
                 except AccessDeniedException as error:
                     access_message = error.message
                     content = insert_denied_component(content, path, access_message, app.config["auth_mode"])
+                    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
 
                 response.set_data(content.encode("utf8"))
                 response.headers["Content-type"] = "text/html"
