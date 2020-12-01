@@ -15,9 +15,13 @@ packages = [
 [tool.poetry.dependencies]
 boto3 = "*"
 click = "*"
+flask = "*"
+oic = "*"
+pyjwt = "*"
 python = ">=3.6,<4.0"
 requests = "*"
 requests_toolbelt = "*"
+serverless-wsgi = "*"
 toml = "*"
 dataclasses = { version = "*", python = "~3.6" }
 boto3-stubs = {extras = ["essential", "logs"], version="*"}
@@ -35,6 +39,7 @@ pytest-mypy = "*"
 pytest-cov = "*"
 tox-gh-actions = "*"
 moto = "*"
+jsonlogger = {path = "cybersecuritytools/jsonlogger"}
 
 [tool.poetry.scripts]
 cst = "cybersecuritytools.cst:cli"
