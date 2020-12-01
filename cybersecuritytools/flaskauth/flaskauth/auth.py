@@ -1,3 +1,7 @@
+from typing import Any, Callable, Dict, List, TypeVar, Union
+
+Function = TypeVar("Function", bound=Callable[..., Any])
+
 import json
 import re
 from functools import wraps
@@ -11,7 +15,7 @@ STATIC_SITE_ROOT = None
 ACCESS_CONTROLS = None
 
 
-def set_static_site_root(root):
+def set_static_site_root(root: str):
     global STATIC_SITE_ROOT
     STATIC_SITE_ROOT = root
 
@@ -25,20 +29,20 @@ class AccessDeniedException(Exception):
         request_path -- the denied path requested by the user
     """
 
-    def __init__(self, message="Access denied", request_path=""):
+    def __init__(self, message: str = "Access denied", request_path: str = "") -> None:
         self.message = message
         self.request_path = request_path
-        super().__init__(self.message)
+        super(Exception).__init__(self.message)
 
 
-def add_credentials_to_session(app):
+def add_credentials_to_session(app: Flask):
     """
     Retrieve the login credentials from the ALB
     """
 
-    def decorator(route_function):
+    def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args, **kwargs) -> Response:
             app.logger.debug("Add credentials to session")
             if app.config.get("ENV", "debug") == "production":
                 try:
@@ -65,7 +69,7 @@ def add_credentials_to_session(app):
     return decorator
 
 
-def get_access_file():
+def get_access_file() -> str:
     """
     The static site should contain this JSON file
     alongside the root of the content.
@@ -74,7 +78,7 @@ def get_access_file():
     return f"{STATIC_SITE_ROOT}access-control.json"
 
 
-def get_access_controls():
+def get_access_controls() -> Union[Dict, None]:
     """
     Parse the access control JSON file
 
@@ -94,7 +98,9 @@ def get_access_controls():
     return ACCESS_CONTROLS
 
 
-def check_role_requirement(requirement, roles):
+def check_role_requirement(
+    requirement: Dict[Union[str, List[str]]], roles: List[str]
+) -> bool:
     """
     Check user roles meets requirement
 
@@ -118,7 +124,7 @@ def check_role_requirement(requirement, roles):
     return allow
 
 
-def check_access(path, user):
+def check_access(path: str, user: Union[None, Dict[Union[str, List[str]]]]) -> None:
     """
     Check request against defined access restrictions
 
@@ -149,19 +155,11 @@ def check_access(path, user):
                 LOG.debug("Access restricted by login status")
             else:
                 # Only check roles if auth required and logged in
-                # if "require_all" in settings:
-                #     # require user has all the roles specified
-                #     required_set = set(settings["require_all"])
-                #     has_set = set(user.get("roles", []))
-                #     allow = required_set.issubset(has_set)
-                # if "require_any" in settings:
-                #     # require user has any one of specified roles
-                #     required_set = set(settings["require_any"])
-                #     has_set = set(user.get("roles", []))
-                #     allow = any(role in has_set for role in required_set)
                 if "role_requirements" in settings:
                     for requirement in settings["role_requirements"]:
-                        allow = check_role_requirement(requirement, user.get("roles", []))
+                        allow = check_role_requirement(
+                            requirement, user.get("roles", [])
+                        )
 
                 LOG.debug(f"RBAC status: {allow}")
 
@@ -173,15 +171,15 @@ def check_access(path, user):
         raise AccessDeniedException(request_path=path, message=access_message)
 
 
-def authorize_or_redirect(app, denied_route="/access-denied"):
+def authorize_or_redirect(app: Flask, denied_route: str = "/access-denied") -> Function:
     """
     Decorator for flask routes to authorize content
 
     """
 
-    def decorator(route_function):
+    def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args, **kwargs) -> Response:
             path = request.path
             app.logger.debug(f"URL: {path}")
 
@@ -200,7 +198,7 @@ def authorize_or_redirect(app, denied_route="/access-denied"):
     return decorator
 
 
-def authorize_or_errorhandler(app):
+def authorize_or_errorhandler(app: Flask) -> Function:
     """
     Decorator for flask routes to authorize content
 
@@ -214,9 +212,9 @@ def authorize_or_errorhandler(app):
         return render_template("error.html", error=error), 403
     """
 
-    def decorator(route_function):
+    def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args, **kwargs) -> Response:
             path = request.path
             app.logger.debug(f"URL: {path}")
 
@@ -229,16 +227,16 @@ def authorize_or_errorhandler(app):
     return decorator
 
 
-def authorize_static(app):
+def authorize_static(app: Flask) -> Function:
     """Decorator for flask routes to authorize content
 
     Permissions are based on settings in the parent
     site access-control.json
     """
 
-    def decorator(route_function):
+    def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args, **kwargs) -> Response:
             response = route_function(*args, **kwargs)
             path = request.path
 
@@ -267,8 +265,12 @@ def authorize_static(app):
                     check_access(path, session.get("user_info"))
                 except AccessDeniedException as error:
                     access_message = error.message
-                    content = insert_denied_component(content, path, access_message, app.config["auth_mode"])
-                    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                    content = insert_denied_component(
+                        content, path, access_message, app.config["auth_mode"]
+                    )
+                    response.headers[
+                        "Cache-Control"
+                    ] = "no-cache, no-store, must-revalidate"
 
                 response.set_data(content.encode("utf8"))
                 response.headers["Content-type"] = "text/html"
@@ -279,23 +281,21 @@ def authorize_static(app):
     return decorator
 
 
-def insert_login_component(content, auth_mode):
+def insert_login_component(content: str, auth_mode: str) -> str:
     """
     Show login status
 
     Adds a login status component in the nav menu
     """
     nav_end = re.compile("\<\/nav\>")
-    login_content = render_template(
-        "login.html",
-        session=session,
-        auth_mode=auth_mode
-    )
+    login_content = render_template("login.html", session=session, auth_mode=auth_mode)
     content = nav_end.sub(f"{login_content}</nav>", content, 1)
     return content
 
 
-def insert_denied_component(content, authorised_path, access_message, auth_mode):
+def insert_denied_component(
+    content: str, authorised_path: str, access_message: str, auth_mode: str
+) -> str:
     """
     Render access denied page
 
@@ -307,7 +307,7 @@ def insert_denied_component(content, authorised_path, access_message, auth_mode)
         session=session,
         authorised_path=authorised_path,
         access_message=access_message,
-        auth_mode=auth_mode
+        auth_mode=auth_mode,
     )
     try:
         main_start = content.index("<main")
@@ -321,7 +321,7 @@ def insert_denied_component(content, authorised_path, access_message, auth_mode)
     return content
 
 
-def get_static_file_content(path):
+def get_static_file_content(path: str) -> Union[str, bytes]:
     """
     Get the file content from a path in the static site
     """
@@ -335,7 +335,7 @@ def get_static_file_content(path):
     return content
 
 
-def make_default_response(path):
+def make_default_response(path: str) -> Union[str, bytes]:
     """
     This replaces calls to send_from_directory
 

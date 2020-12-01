@@ -2,12 +2,12 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, ParamValidationError
-
 from jsonlogger import LOG
 
 CONFIG = {}
 
-def load_ssm_parameters(app):
+
+def load_ssm_parameters(app: Flask) -> bool:
     ssm_parameters_retrieved = True
     try:
 
@@ -15,7 +15,7 @@ def load_ssm_parameters(app):
         ssm_parameter_map = {
             "/oidc/endpoint": "oidc_root_endpoint",
             "/oidc/client_id": "oidc_client_id",
-            "/oidc/client_secret": "oidc_client_secret",  #pragma: allowlist secret
+            "/oidc/client_secret": "oidc_client_secret",  # pragma: allowlist secret
             "/flask/secret_key": "secret_key",  # pragma: allowlist secret
         }
 

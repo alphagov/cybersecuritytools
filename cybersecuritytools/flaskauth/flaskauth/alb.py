@@ -1,15 +1,17 @@
 import base64
 import json
+from typing import Dict
 
 import jwt
 import requests
 from jsonlogger import LOG
+
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html
 
 PUBLIC_KEYS = {}
 
 
-def get_kid(encoded_jwt):
+def get_kid(encoded_jwt: str) -> str:
     """
     Get the ALB (K)ey (ID) from a JWT
 
@@ -24,7 +26,7 @@ def get_kid(encoded_jwt):
     return kid
 
 
-def get_public_key(kid, region="eu-west-2"):
+def get_public_key(kid: str, region: str = "eu-west-2") -> str:
     """
     Get an ALB public key from a keyID
     """
@@ -35,7 +37,7 @@ def get_public_key(kid, region="eu-west-2"):
     return public_key
 
 
-def alb_get_user_info(encoded_jwt, verify=True):
+def alb_get_user_info(encoded_jwt: str, verify: bool = True) -> Dict:
     """
     Process a JWT token to check that it is valid
     """

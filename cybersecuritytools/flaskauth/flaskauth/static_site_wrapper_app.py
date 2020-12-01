@@ -7,16 +7,16 @@ from .auth import (
     add_credentials_to_session,
     authorize_static,
     make_default_response,
-    set_static_site_root
+    set_static_site_root,
 )
 from .config import load_ssm_parameters
 from .oidc_client import (
-    set_oidc_config,
-    get_authorization_url,
     get_authorization_response,
-    get_userinfo,
+    get_authorization_url,
     get_logout_redirect,
-    reset_config
+    get_userinfo,
+    reset_config,
+    set_oidc_config,
 )
 
 templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
@@ -33,14 +33,14 @@ if app.config["auth_mode"] == "flask":
     set_oidc_config(
         endpoint=app.config.get("oidc_root_endpoint"),
         client_id=app.config.get("oidc_client_id"),
-        client_secret=app.config.get("oidc_client_secret")
+        client_secret=app.config.get("oidc_client_secret"),
     )
 
 
 @app.route("/auth")
 @app.route("/oauth2/idpresponse")
 @add_credentials_to_session(app)
-def handle_auth():
+def handle_auth() -> Response:
     """
     Handles request post ALB authentication
     """
@@ -53,8 +53,8 @@ def handle_auth():
     return redirect(redirect_path, code=302)
 
 
-@app.route('/login')
-def login():
+@app.route("/login")
+def login() -> Response:
     redirect_to = f"{request.host_url}/oidc-callback"
     session["login_redirect"] = redirect_to
     auth_url = get_authorization_url(redirect_to)
@@ -63,8 +63,8 @@ def login():
     return response
 
 
-@app.route('/oidc-callback')
-def auth_callback():
+@app.route("/oidc-callback")
+def auth_callback() -> Response:
     LOG.debug(vars(request))
     auth_response = get_authorization_response()
 
@@ -75,34 +75,33 @@ def auth_callback():
         # Don't create a key in the session dict if a user is not returned
         session["user_info"] = user_info
 
-    del (session["login_redirect"])
+    del session["login_redirect"]
 
     if "request_path" in session:
         redirect_path = session["request_path"]
-        del(session["request_path"])
+        del session["request_path"]
     else:
         redirect_path = "/"
     response = redirect(redirect_path)
     return response
 
 
-@app.route('/logout')
-def logout():
+@app.route("/logout")
+def logout() -> Response:
     if app.config["auth_mode"] == "flask":
         response = get_logout_redirect(request.host_url)
     else:
         response = redirect("/")
-    if 'user_info' in session:
-        del session['user_info']
+    if "user_info" in session:
+        del session["user_info"]
 
     return response
-
 
 
 @app.route("/")
 @app.route("/<path:path>")
 @authorize_static(app)
-def static_site_page(path=""):
+def static_site_page(path: str = "") -> Response:
     app.logger.debug("default route")
 
     # This can't be a send_from_directory because
