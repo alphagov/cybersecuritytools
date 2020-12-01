@@ -5,7 +5,7 @@ import serverless_wsgi
 from .static_site_wrapper_app import app
 
 
-def lambda_handler(event: Dict[Any], context: Dict[Any]) -> str:
+def lambda_handler(event: Dict[str, Any], context: Dict[str, Any]) -> str:
     """
     Lambda handler entry point
     """

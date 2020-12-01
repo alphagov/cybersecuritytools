@@ -99,7 +99,7 @@ def get_access_controls() -> Union[Dict, None]:
 
 
 def check_role_requirement(
-    requirement: Dict[Union[str, List[str]]], roles: List[str]
+    requirement: Dict[str, Union[str, List[str]]], roles: List[str]
 ) -> bool:
     """
     Check user roles meets requirement
@@ -124,7 +124,7 @@ def check_role_requirement(
     return allow
 
 
-def check_access(path: str, user: Union[None, Dict[Union[str, List[str]]]]) -> None:
+def check_access(path: str, user: Union[None, Dict[str, Union[str, List[str]]]]) -> None:
     """
     Check request against defined access restrictions
 

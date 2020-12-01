@@ -1,5 +1,6 @@
 import os
 
+from flask import Flask
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, ParamValidationError
 from jsonlogger import LOG

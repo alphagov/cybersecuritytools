@@ -127,7 +127,7 @@ def get_user_roles(token: Token) -> List[str]:
     return roles
 
 
-def get_userinfo(auth_response: AuthorizationResponse, redirect_to: str) -> Dict[Any]:
+def get_userinfo(auth_response: AuthorizationResponse, redirect_to: str) -> Dict[str, Any]:
     """
     Make userinfo request
     """
