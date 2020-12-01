@@ -9,7 +9,7 @@ import sys
 class JsonFormatter(logging.Formatter):
     """ Handle log invokes with string, dict or json.dumps """
 
-    def format(self):
+    def format(self) -> str:
         """ Detect formatting of self message and encode as valid JSON """
         data = {}
         data.update(vars(self))
@@ -36,7 +36,7 @@ class JsonFormatter(logging.Formatter):
         return log_message
 
 
-def build_logger(log_name, log_level="ERROR"):
+def build_logger(log_name: str, log_level: str="ERROR") -> logging.Logger:
     """ Create shared logger and custom JSON handler """
     logger = logging.getLogger(log_name)
     handler = logging.StreamHandler(sys.stdout)
