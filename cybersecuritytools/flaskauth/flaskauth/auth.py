@@ -6,19 +6,18 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from flask import (
     Flask,
     Response,
-    request,
-    session,
     make_response,
-    render_template,
     redirect,
+    render_template,
+    request,
     send_from_directory,
+    session,
 )
 from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .alb import alb_get_user_info
-
 
 Function = Callable[..., Any]
 FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]

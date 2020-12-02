@@ -1,10 +1,7 @@
 import os
 
 import boto3
-from botocore.exceptions import (  # type: ignore
-    ClientError,
-    NoCredentialsError,
-)
+from botocore.exceptions import ClientError, NoCredentialsError  # type: ignore
 from flask import Flask
 from jsonlogger import LOG  # type: ignore
 

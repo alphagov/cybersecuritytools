@@ -1,7 +1,7 @@
 import os
 from typing import Union
 
-from flask import Flask, Response, session, request, redirect
+from flask import Flask, Response, redirect, request, session
 from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
 from werkzeug.wrappers import Response as WerkzeugResponse

@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Union
 from urllib.parse import urlencode
 
-from flask import Response, session, request, redirect
+from flask import Response, redirect, request, session
 from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
 from oic import rndstr
