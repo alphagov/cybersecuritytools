@@ -1,14 +1,14 @@
 import base64
 import json
-from typing import Dict
+from typing import Dict, Any
 
 import jwt
 import requests
-from jsonlogger import LOG
+from jsonlogger import LOG  # type: ignore
 
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html
 
-PUBLIC_KEYS = {}
+PUBLIC_KEYS: Dict[str, Any] = {}
 
 
 def get_kid(encoded_jwt: str) -> str:
@@ -19,8 +19,7 @@ def get_kid(encoded_jwt: str) -> str:
     """
     LOG.debug("get_kid")
     jwt_headers = encoded_jwt.split(".")[0]
-    decoded_jwt_headers = base64.b64decode(jwt_headers)
-    decoded_jwt_headers = decoded_jwt_headers.decode("utf-8")
+    decoded_jwt_headers = base64.b64decode(jwt_headers).decode("utf-8")
     decoded_json = json.loads(decoded_jwt_headers)
     kid = decoded_json["kid"]
     return kid

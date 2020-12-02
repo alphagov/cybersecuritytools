@@ -1,11 +1,13 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
-import serverless_wsgi
+import serverless_wsgi  # type: ignore
 
 from .static_site_wrapper_app import app
 
 
-def lambda_handler(event: Dict[str, Any], context: Dict[str, Any]) -> str:
+def lambda_handler(
+    event: Dict[str, Any], context: Union[None, Dict[str, Any]]
+) -> Dict[str, Any]:
     """
     Lambda handler entry point
     """

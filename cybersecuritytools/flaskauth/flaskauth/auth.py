@@ -1,18 +1,23 @@
-from typing import Any, Callable, Dict, List, TypeVar, Union
+from typing import Any, Callable, Dict, List, Union, Optional
 
-Function = TypeVar("Function", bound=Callable[..., Any])
+Function = Callable[..., Any]
 
 import json
 import re
 from functools import wraps
 
 from flask import *
-from jsonlogger import LOG
+from jsonlogger import LOG  # type: ignore
 
 from .alb import alb_get_user_info
+from werkzeug.wrappers import Response as WerkzeugResponse
+from flask.wrappers import Response as FlaskWrapperResponse
+
+FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
 
 STATIC_SITE_ROOT = None
 ACCESS_CONTROLS = None
+DEFAULT_ACCESS: Dict[str, Any] = {"pages": []}
 
 
 def set_static_site_root(root: str):
@@ -32,7 +37,7 @@ class AccessDeniedException(Exception):
     def __init__(self, message: str = "Access denied", request_path: str = "") -> None:
         self.message = message
         self.request_path = request_path
-        super(Exception).__init__(self.message)
+        super(Exception, self).__init__(self.message)
 
 
 def add_credentials_to_session(app: Flask):
@@ -78,7 +83,7 @@ def get_access_file() -> str:
     return f"{STATIC_SITE_ROOT}access-control.json"
 
 
-def get_access_controls() -> Union[Dict, None]:
+def get_access_controls() -> Dict[str, Any]:
     """
     Parse the access control JSON file
 
@@ -89,10 +94,13 @@ def get_access_controls() -> Union[Dict, None]:
 
     if not ACCESS_CONTROLS:
         access_file = get_access_file()
-        with open(access_file, "r") as control_file:
-            controls = json.loads(control_file.read())
-            controls["access_file"] = access_file
-        ACCESS_CONTROLS = controls
+        try:
+            with open(access_file, "r") as control_file:
+                controls = json.loads(control_file.read())
+                controls["access_file"] = access_file
+            ACCESS_CONTROLS = controls
+        except FileNotFoundError:
+            ACCESS_CONTROLS = DEFAULT_ACCESS
         LOG.debug(controls)
 
     return ACCESS_CONTROLS
@@ -124,7 +132,9 @@ def check_role_requirement(
     return allow
 
 
-def check_access(path: str, user: Union[None, Dict[str, Union[str, List[str]]]]) -> None:
+def check_access(
+    path: str, user: Optional[Dict[str, Union[str, List[str]]]]
+) -> None:
     """
     Check request against defined access restrictions
 
@@ -157,8 +167,10 @@ def check_access(path: str, user: Union[None, Dict[str, Union[str, List[str]]]])
                 # Only check roles if auth required and logged in
                 if "role_requirements" in settings:
                     for requirement in settings["role_requirements"]:
+                        # This mypy errors because user is optional
+                        # The none case is handled by the if not logged_in
                         allow = check_role_requirement(
-                            requirement, user.get("roles", [])
+                            requirement, user.get("roles", [])  # type: ignore
                         )
 
                 LOG.debug(f"RBAC status: {allow}")
@@ -324,18 +336,21 @@ def insert_denied_component(
 def get_static_file_content(path: str) -> Union[str, bytes]:
     """
     Get the file content from a path in the static site
+
+    This function dynamically handles the situation that some static
+    files are text (html/css/js) and some are binary assets (png,woff)
     """
     LOG.debug(f"Invoke get_static_site_content for path: {path}")
     try:
         with open(f"{STATIC_SITE_ROOT}{path}", "r") as content_file:
             content = content_file.read()
     except UnicodeDecodeError:
-        with open(f"{STATIC_SITE_ROOT}{path}", "rb") as content_file:
-            content = content_file.read()
+        with open(f"{STATIC_SITE_ROOT}{path}", "rb") as binary_file:
+            content = binary_file.read()  # type: ignore
     return content
 
 
-def make_default_response(path: str) -> Union[str, bytes]:
+def make_default_response(path: str) -> FlaskResponse:
     """
     This replaces calls to send_from_directory
 

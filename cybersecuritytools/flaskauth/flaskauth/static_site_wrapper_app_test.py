@@ -2,6 +2,8 @@ import json
 from typing import Any, Dict
 
 import pytest
+from flask import Flask, Response
+from flask.testing import FlaskClient
 
 from .static_site_wrapper_app import app  # noqa
 
@@ -9,11 +11,10 @@ app.config["SECRET_KEY"] = "testnotrandom"
 
 
 @pytest.fixture(scope="session")
-def authenticated() -> Flask:
+def authenticated() -> FlaskClient[Response]:
     """Setup a flask test client. This is used to connect to the test
     server and make requests.
     """
-
     app.config["TESTING"] = True
     app.config["verify_oidc"] = False
     authenticated = app.test_client()
@@ -21,7 +22,7 @@ def authenticated() -> Flask:
 
 
 @pytest.fixture(scope="session")
-def unauthenticated() -> Flask:
+def unauthenticated() -> FlaskClient[Response]:
     """Setup a flask test unauthenticated. This is used to connect to the test
     server and make requests.
     """
@@ -31,7 +32,7 @@ def unauthenticated() -> Flask:
 
 
 @pytest.fixture(scope="session")
-def alb_https_odic_get_root() -> Dict[Any]:
+def alb_https_odic_get_root() -> Dict[str, Any]:
     """Load a JSON alb request that has OIDC information in it."""
     with open("tests/fixtures/alb_https_oidc_get_root.json", "r") as f:
         return json.load(f)

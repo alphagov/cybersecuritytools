@@ -1,7 +1,10 @@
 import os
-
+from typing import Union
 from flask import *
-from jsonlogger import LOG
+
+from werkzeug.wrappers import Response as WerkzeugResponse
+from flask.wrappers import Response as FlaskWrapperResponse
+from jsonlogger import LOG  # type: ignore
 
 from .auth import (
     add_credentials_to_session,
@@ -19,11 +22,13 @@ from .oidc_client import (
     set_oidc_config,
 )
 
+FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
+
 templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 LOG.debug(f"Template folder: {templates}")
 
 app = Flask(__name__, template_folder=templates)
-app.logger = LOG
+app.logger.handlers = LOG.handlers
 load_ssm_parameters(app)
 set_static_site_root(os.environ.get("STATIC_ROOT", ""))
 app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
@@ -40,7 +45,7 @@ if app.config["auth_mode"] == "flask":
 @app.route("/auth")
 @app.route("/oauth2/idpresponse")
 @add_credentials_to_session(app)
-def handle_auth() -> Response:
+def handle_auth() -> FlaskResponse:
     """
     Handles request post ALB authentication
     """
@@ -54,7 +59,7 @@ def handle_auth() -> Response:
 
 
 @app.route("/login")
-def login() -> Response:
+def login() -> FlaskResponse:
     redirect_to = f"{request.host_url}/oidc-callback"
     session["login_redirect"] = redirect_to
     auth_url = get_authorization_url(redirect_to)
@@ -64,7 +69,7 @@ def login() -> Response:
 
 
 @app.route("/oidc-callback")
-def auth_callback() -> Response:
+def auth_callback() -> FlaskResponse:
     LOG.debug(vars(request))
     auth_response = get_authorization_response()
 
@@ -87,7 +92,7 @@ def auth_callback() -> Response:
 
 
 @app.route("/logout")
-def logout() -> Response:
+def logout() -> FlaskResponse:
     if app.config["auth_mode"] == "flask":
         response = get_logout_redirect(request.host_url)
     else:
@@ -101,7 +106,7 @@ def logout() -> Response:
 @app.route("/")
 @app.route("/<path:path>")
 @authorize_static(app)
-def static_site_page(path: str = "") -> Response:
+def static_site_page(path: str = "") -> FlaskResponse:
     app.logger.debug("default route")
 
     # This can't be a send_from_directory because

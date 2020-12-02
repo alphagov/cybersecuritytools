@@ -1,9 +1,9 @@
 import os
 
-from flask import Flask
 import boto3
-from botocore.exceptions import ClientError, NoCredentialsError, ParamValidationError
-from jsonlogger import LOG
+from botocore.exceptions import ClientError, NoCredentialsError, ParamValidationError  # type: ignore
+from flask import Flask
+from jsonlogger import LOG  # type: ignore
 
 CONFIG = {}
 

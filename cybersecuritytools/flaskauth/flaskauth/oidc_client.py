@@ -1,15 +1,21 @@
-from typing import Any, Callable, Dict, List, TypeVar, Union
+from typing import Any, Dict, List, Union, Optional
 from urllib.parse import urlencode
 
 from flask import *
-from jsonlogger import LOG
+from jsonlogger import LOG  # type: ignore
 from oic import rndstr
 from oic.exception import AccessDenied
-from oic.oauth2 import AuthorizationResponse, Grant, OauthMessageFactory
-from oic.oic import Client, Token
+from oic.oauth2 import AuthorizationResponse, Grant, OauthMessageFactory, Message
+from oic.oic.message import AccessTokenResponse
+from oic.oic import Client
 from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
 
-CONFIG = {}
+from werkzeug.wrappers import Response as WerkzeugResponse
+from flask.wrappers import Response as FlaskWrapperResponse
+
+FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
+
+CONFIG: Dict[str, Any] = {}
 
 
 def get_host() -> str:
@@ -18,9 +24,9 @@ def get_host() -> str:
 
 
 def set_oidc_config(
-    endpoint: str,
-    client_id: str,
-    client_secret: str,
+    endpoint: Union[str, None],
+    client_id: Union[str, None],
+    client_secret: Union[str, None],
     scope: str = "openid profile email roles",
 ) -> None:
     LOG.debug(f"Set oidc config for: {endpoint}")
@@ -58,7 +64,7 @@ def get_session_state(renew: bool = False) -> str:
     return session["state"]
 
 
-def get_authorization_url(redirect_to: str) -> str:
+def get_authorization_url(redirect_to: str) -> Optional[str]:
     """
     Get login url
     """
@@ -85,7 +91,9 @@ def get_authorization_url(redirect_to: str) -> str:
     return url
 
 
-def get_access_token(auth_response: AuthorizationResponse, redirect_to: str) -> Token:
+def get_access_token(
+    auth_response: Message, redirect_to: str
+) -> AccessTokenResponse:
     """
     Get an access token
     """
@@ -115,7 +123,7 @@ def get_access_token(auth_response: AuthorizationResponse, redirect_to: str) -> 
     return token_response
 
 
-def get_user_roles(token: Token) -> List[str]:
+def get_user_roles(token: AccessTokenResponse) -> List[str]:
     """
     Get roles list from user_info
     """
@@ -127,7 +135,9 @@ def get_user_roles(token: Token) -> List[str]:
     return roles
 
 
-def get_userinfo(auth_response: AuthorizationResponse, redirect_to: str) -> Dict[str, Any]:
+def get_userinfo(
+    auth_response: Message, redirect_to: str
+) -> Dict[str, Any]:
     """
     Make userinfo request
     """
@@ -151,18 +161,18 @@ def get_userinfo(auth_response: AuthorizationResponse, redirect_to: str) -> Dict
     return user_info_dict
 
 
-def get_authorization_response() -> AuthorizationResponse:
+def get_authorization_response() -> Message:
     """
     Parse authorization response
     """
     client = get_client()
     authorization_response = client.parse_response(
-        AuthorizationResponse, info=request.args, sformat="dict"
+        AuthorizationResponse, info=request.args, sformat="dict"  # type: ignore
     )
     return authorization_response
 
 
-def get_logout_redirect(redirect_to: str) -> Response:
+def get_logout_redirect(redirect_to: str) -> FlaskResponse:
     headers = {}
     headers["Content-Type"] = "application/json"
     # I don't think we need an auth header since we're actually
