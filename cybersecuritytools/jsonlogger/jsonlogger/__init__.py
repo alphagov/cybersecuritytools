@@ -9,13 +9,12 @@ import sys
 class JsonFormatter(logging.Formatter):
     """ Handle log invokes with string, dict or json.dumps """
 
-    def format(self) -> str:
+    def format(self, record: logging.LogRecord) -> str:
         """ Detect formatting of self message and encode as valid JSON """
         data = {}
-        data.update(vars(self))
+        data.update(vars(record))
         try:
-            json.loads(self.msg)
-            parsed = json.loads(self.msg)
+            parsed = json.loads(record.msg)
             if type(parsed) in [dict, list]:
                 data["msg"] = parsed
         except (ValueError, TypeError, json.JSONDecodeError):
@@ -36,11 +35,12 @@ class JsonFormatter(logging.Formatter):
         return log_message
 
 
-def build_logger(log_name: str, log_level: str="ERROR") -> logging.Logger:
+def build_logger(log_name: str, log_level: str = "ERROR") -> logging.Logger:
     """ Create shared logger and custom JSON handler """
     logger = logging.getLogger(log_name)
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(JsonFormatter)
+    # For some reason mypy doesn't understand sub-classes
+    handler.setFormatter(JsonFormatter)  # type: ignore
     logger.handlers = []
     logger.addHandler(handler)
     logger.setLevel(getattr(logging, log_level))
