@@ -65,5 +65,7 @@ def build_logger(log_name: str, log_level: str = "ERROR") -> logging.Logger:
 
 LOG_LEVEL = str(os.getenv("LOG_LEVEL", "ERROR"))
 if not LOG_LEVEL:
+    # Handle LOG_LEVEL set to empty string
+    # This happens if not declared in parent shell of docker-compose
     LOG_LEVEL = "ERROR"
 LOG = build_logger("json_logger", log_level=LOG_LEVEL)
