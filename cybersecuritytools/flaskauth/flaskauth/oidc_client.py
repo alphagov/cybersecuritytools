@@ -1,17 +1,16 @@
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, Optional, Union
 from urllib.parse import urlencode
 
-from flask import *
+from flask import Response, session, request, redirect
+from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
 from oic import rndstr
 from oic.exception import AccessDenied
-from oic.oauth2 import AuthorizationResponse, Grant, OauthMessageFactory, Message
-from oic.oic.message import AccessTokenResponse
+from oic.oauth2.message import Message
 from oic.oic import Client
+from oic.oic.message import AccessTokenResponse, AuthorizationResponse
 from oic.utils.authn.client import ClientSecretBasic, ClientSecretPost
-
 from werkzeug.wrappers import Response as WerkzeugResponse
-from flask.wrappers import Response as FlaskWrapperResponse
 
 FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
 
@@ -36,7 +35,14 @@ def set_oidc_config(
     CONFIG["scope"] = scope
 
 
-def get_client() -> Client:
+def get_client() -> Any:
+    """
+    Create a client instance once and store in CONFIG for re-use
+
+    This should always return either a Client instance or None
+    Since I've used a single CONFIG dict to store the re-usable
+    config mypy thinks the type of CONFIG["client"] is Any.
+    """
 
     client = CONFIG.get("client")
     if "endpoint" in CONFIG and not client:
@@ -58,9 +64,18 @@ def get_client() -> Client:
     return CONFIG["client"]
 
 
-def get_session_state(renew: bool = False) -> str:
+def get_session_state(renew: bool = False) -> Any:
+    """
+    Create a random string and store in flask session
+
+    You should always retrieve the existing state
+    unless you explicity force a renew.
+
+    The return type is string but rndstr() doesn't
+    declare a return type so I can't set it
+    """
     if "state" not in session or renew:
-        session["state"] = rndstr(size=64)
+        session["state"] = rndstr(size=64)  # type: ignore
     return session["state"]
 
 
@@ -69,7 +84,7 @@ def get_authorization_url(redirect_to: str) -> Optional[str]:
     Get login url
     """
     LOG.debug("Get OIDC authorization URL")
-    nonce = rndstr()
+    nonce = rndstr()  # type: ignore
     client = get_client()
 
     url = None
@@ -91,15 +106,17 @@ def get_authorization_url(redirect_to: str) -> Optional[str]:
     return url
 
 
-def get_access_token(
-    auth_response: Message, redirect_to: str
-) -> AccessTokenResponse:
+def get_access_token(auth_response: Message, redirect_to: str) -> Any:
     """
     Get an access token
+
+    This function returns an AccessTokenResponse but because
+    I'm using the shared CONFIG dictionary to store it I can't
+    specify it.
     """
 
     if auth_response["state"] != get_session_state():
-        raise AccessDenied("State tampering")
+        raise AccessDenied("State tampering")  # type: ignore
     else:
         client = get_client()
         LOG.debug(f"Auth response code: {auth_response['code']}")
@@ -123,11 +140,14 @@ def get_access_token(
     return token_response
 
 
-def get_user_roles(token: AccessTokenResponse) -> List[str]:
+def get_user_roles(token: AccessTokenResponse) -> Any:
     """
     Get roles list from user_info
+
+    This function returns List[str] but I can't specify
+    the internal types of the AccessTokenResponse.to_dict()
     """
-    token_dict = token.to_dict()
+    token_dict = token.to_dict()  # type: ignore
     try:
         roles = token_dict["id_token"]["realm_access"]["roles"]
     except (KeyError, ValueError):
@@ -135,9 +155,7 @@ def get_user_roles(token: AccessTokenResponse) -> List[str]:
     return roles
 
 
-def get_userinfo(
-    auth_response: Message, redirect_to: str
-) -> Dict[str, Any]:
+def get_userinfo(auth_response: Message, redirect_to: str) -> Any:
     """
     Make userinfo request
     """
@@ -161,13 +179,15 @@ def get_userinfo(
     return user_info_dict
 
 
-def get_authorization_response() -> Message:
+def get_authorization_response() -> Any:
     """
     Parse authorization response
+
+    Actually returns a oic.oauth2.message.Message
     """
     client = get_client()
     authorization_response = client.parse_response(
-        AuthorizationResponse, info=request.args, sformat="dict"  # type: ignore
+        AuthorizationResponse, info=request.args, sformat="dict"
     )
     return authorization_response
 

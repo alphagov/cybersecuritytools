@@ -9,12 +9,21 @@ import sys
 class JsonFormatter(logging.Formatter):
     """ Handle log invokes with string, dict or json.dumps """
 
-    # According to the docs this method should have a record: LogRecord
-    # argument. However
-
     def format(record: logging.LogRecord) -> str:  # type: ignore
         """
         Detect formatting of self message and encode as valid JSON
+
+        According to the docs this method should have a record: LogRecord
+        argument. It should be specifying self as the first argument to
+        a class instance method but if you pass self then 2 things happen
+
+        1. It doesn't work because the record argument is not passed at runtime
+        2. The thing which has a .msg property becomes self but the Formatter
+        super-class doesn't have a msg property. The thing with a msg propery
+        is a LogRecord.
+
+        This works round the issue so that the argument is of the right type
+        but doesn't match Python OO syntax or the super class method signature
         """
         data = {}
         data.update(vars(record))
@@ -55,4 +64,6 @@ def build_logger(log_name: str, log_level: str = "ERROR") -> logging.Logger:
 
 
 LOG_LEVEL = str(os.getenv("LOG_LEVEL", "ERROR"))
+if not LOG_LEVEL:
+    LOG_LEVEL = "ERROR"
 LOG = build_logger("json_logger", log_level=LOG_LEVEL)

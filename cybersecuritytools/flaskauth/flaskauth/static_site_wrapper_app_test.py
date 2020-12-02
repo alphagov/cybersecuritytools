@@ -1,8 +1,7 @@
 import json
-from typing import Any, Dict
+from typing import Any
 
 import pytest
-from flask import Flask, Response
 from flask.testing import FlaskClient
 
 from .static_site_wrapper_app import app  # noqa
@@ -11,7 +10,7 @@ app.config["SECRET_KEY"] = "testnotrandom"
 
 
 @pytest.fixture(scope="session")
-def authenticated() -> FlaskClient[Response]:
+def authenticated() -> FlaskClient:
     """Setup a flask test client. This is used to connect to the test
     server and make requests.
     """
@@ -22,7 +21,7 @@ def authenticated() -> FlaskClient[Response]:
 
 
 @pytest.fixture(scope="session")
-def unauthenticated() -> FlaskClient[Response]:
+def unauthenticated() -> FlaskClient:
     """Setup a flask test unauthenticated. This is used to connect to the test
     server and make requests.
     """
@@ -32,13 +31,13 @@ def unauthenticated() -> FlaskClient[Response]:
 
 
 @pytest.fixture(scope="session")
-def alb_https_odic_get_root() -> Dict[str, Any]:
+def alb_https_odic_get_root() -> Any:
     """Load a JSON alb request that has OIDC information in it."""
     with open("tests/fixtures/alb_https_oidc_get_root.json", "r") as f:
         return json.load(f)
 
 
-def test_good_to_go(unauthenticated: Flask) -> None:
+def test_good_to_go(unauthenticated: FlaskClient) -> None:
     """Test the '/__gtg' endpoint works and returns the text 'Good to
     Go!'. This is used by the ELB healthcheck.
     """
@@ -46,7 +45,7 @@ def test_good_to_go(unauthenticated: Flask) -> None:
     assert b"Good to Go!" in result.data
 
 
-def test_logout(authenticated: Flask) -> None:
+def test_logout(authenticated: FlaskClient) -> None:
     """Test the '/logout' endpoint works and returns /login redirect"""
     result = authenticated.get("/logout")
     assert b"/login" in result.data and 302 == result.status_code

@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 
 import jwt
 import requests
@@ -11,7 +11,7 @@ from jsonlogger import LOG  # type: ignore
 PUBLIC_KEYS: Dict[str, Any] = {}
 
 
-def get_kid(encoded_jwt: str) -> str:
+def get_kid(encoded_jwt: str) -> Any:
     """
     Get the ALB (K)ey (ID) from a JWT
 
@@ -36,7 +36,7 @@ def get_public_key(kid: str, region: str = "eu-west-2") -> str:
     return public_key
 
 
-def alb_get_user_info(encoded_jwt: str, verify: bool = True) -> Dict:
+def alb_get_user_info(encoded_jwt: str, verify: bool = True) -> Dict[str, Any]:
     """
     Process a JWT token to check that it is valid
     """

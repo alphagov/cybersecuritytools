@@ -1,18 +1,26 @@
-from typing import Any, Callable, Dict, List, Union, Optional
-
-Function = Callable[..., Any]
-
 import json
 import re
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Union
 
-from flask import *
+from flask import (
+    Flask,
+    Response,
+    request,
+    session,
+    make_response,
+    render_template,
+    redirect,
+    send_from_directory,
+)
+from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .alb import alb_get_user_info
-from werkzeug.wrappers import Response as WerkzeugResponse
-from flask.wrappers import Response as FlaskWrapperResponse
 
+
+Function = Callable[..., Any]
 FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
 
 STATIC_SITE_ROOT = None
@@ -20,7 +28,7 @@ ACCESS_CONTROLS = None
 DEFAULT_ACCESS: Dict[str, Any] = {"pages": []}
 
 
-def set_static_site_root(root: str):
+def set_static_site_root(root: str) -> None:
     global STATIC_SITE_ROOT
     STATIC_SITE_ROOT = root
 
@@ -40,14 +48,14 @@ class AccessDeniedException(Exception):
         super(Exception, self).__init__(self.message)
 
 
-def add_credentials_to_session(app: Flask):
+def add_credentials_to_session(app: Flask) -> Function:
     """
     Retrieve the login credentials from the ALB
     """
 
     def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs) -> Response:
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             app.logger.debug("Add credentials to session")
             if app.config.get("ENV", "debug") == "production":
                 try:
@@ -132,9 +140,7 @@ def check_role_requirement(
     return allow
 
 
-def check_access(
-    path: str, user: Optional[Dict[str, Union[str, List[str]]]]
-) -> None:
+def check_access(path: str, user: Optional[Dict[str, Union[str, List[str]]]]) -> None:
     """
     Check request against defined access restrictions
 
@@ -191,7 +197,7 @@ def authorize_or_redirect(app: Flask, denied_route: str = "/access-denied") -> F
 
     def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs) -> Response:
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             path = request.path
             app.logger.debug(f"URL: {path}")
 
@@ -226,7 +232,7 @@ def authorize_or_errorhandler(app: Flask) -> Function:
 
     def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs) -> Response:
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             path = request.path
             app.logger.debug(f"URL: {path}")
 
@@ -248,7 +254,7 @@ def authorize_static(app: Flask) -> Function:
 
     def decorator(route_function: Function) -> Function:
         @wraps(route_function)
-        def decorated_function(*args, **kwargs) -> Response:
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             response = route_function(*args, **kwargs)
             path = request.path
 
@@ -259,7 +265,7 @@ def authorize_static(app: Flask) -> Function:
             passthru = ext in ["ico", "css", "js", "png", "woff", "woff2"]
             if passthru:
                 # remove leading slash to avoid // in path
-                path = re.sub("^\/", "", path)
+                path = re.sub("^/", "", path)
                 response = send_from_directory(STATIC_SITE_ROOT, path)
 
             # Always refuse the access control settings
@@ -299,7 +305,7 @@ def insert_login_component(content: str, auth_mode: str) -> str:
 
     Adds a login status component in the nav menu
     """
-    nav_end = re.compile("\<\/nav\>")
+    nav_end = re.compile("</nav>")
     login_content = render_template("login.html", session=session, auth_mode=auth_mode)
     content = nav_end.sub(f"{login_content}</nav>", content, 1)
     return content

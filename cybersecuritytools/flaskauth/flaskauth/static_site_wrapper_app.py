@@ -1,10 +1,10 @@
 import os
 from typing import Union
-from flask import *
 
-from werkzeug.wrappers import Response as WerkzeugResponse
+from flask import Flask, Response, session, request, redirect
 from flask.wrappers import Response as FlaskWrapperResponse
 from jsonlogger import LOG  # type: ignore
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .auth import (
     add_credentials_to_session,
@@ -18,7 +18,6 @@ from .oidc_client import (
     get_authorization_url,
     get_logout_redirect,
     get_userinfo,
-    reset_config,
     set_oidc_config,
 )
 
