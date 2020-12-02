@@ -9,11 +9,18 @@ import sys
 class JsonFormatter(logging.Formatter):
     """ Handle log invokes with string, dict or json.dumps """
 
-    def format(self, record: logging.LogRecord) -> str:
-        """ Detect formatting of self message and encode as valid JSON """
+    # According to the docs this method should have a record: LogRecord
+    # argument. However
+
+    def format(record: logging.LogRecord) -> str:  # type: ignore
+        """
+        Detect formatting of self message and encode as valid JSON
+        """
         data = {}
         data.update(vars(record))
         try:
+            # It seems that this self is actually an instance of LogRecord
+            # but if I declare the function as a classmethod it doesn't work
             parsed = json.loads(record.msg)
             if type(parsed) in [dict, list]:
                 data["msg"] = parsed
