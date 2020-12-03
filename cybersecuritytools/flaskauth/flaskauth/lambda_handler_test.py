@@ -8,11 +8,6 @@ from .tests import stubs
 from .lambda_handler import lambda_handler
 
 
-def mock_file_open(content):
-    mocked_open = patch("builtins.open", mock_open(read_data=content))
-    return mocked_open
-
-
 @pytest.mark.usefixtures(
     "request_home",
     "test_ssm_parameters"

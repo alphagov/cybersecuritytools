@@ -14,7 +14,7 @@ def load_ssm_parameters(app: Flask) -> bool:
 
         ssm_prefix = os.environ.get("SSM_PREFIX")
         ssm_parameter_map = {
-            "/oidc/endpoint": "oidc_root_endpoint",
+            "/oidc/endpoint": "oidc_endpoint",
             "/oidc/client_id": "oidc_client_id",
             "/oidc/client_secret": "oidc_client_secret",  # pragma: allowlist secret
             "/flask/secret_key": "secret_key",  # pragma: allowlist secret

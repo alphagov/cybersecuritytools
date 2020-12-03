@@ -39,7 +39,7 @@ def bootstrap():
 
     if app.config["auth_mode"] == "flask":
         set_oidc_config(
-            endpoint=app.config.get("oidc_root_endpoint"),
+            endpoint=app.config.get("oidc_endpoint"),
             client_id=app.config.get("oidc_client_id"),
             client_secret=app.config.get("oidc_client_secret"),
         )
