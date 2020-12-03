@@ -60,4 +60,50 @@ There are also some helper functions for handling OIDC
 authentication delegated to an AWS load balancer using 
 JWTs. 
 
+## Local development
+
+You can run an instance of this app directly as follows: 
+
+### Create some SecureString SSM parameters
+```
+"/path/to/ssm/settings/flask/secret_key": "flask-secret",
+"/path/to/ssm/settings/oidc/endpoint": "your.auth.service",
+"/path/to/ssm/settings/oidc/client_id": "oidc-client-id",
+"/path/to/ssm/settings/oidc/client_secret": "oidc-client-secret"  # pragma: allowlist secret
+```
+
+### Setup your environment
+
+```
+export LOG_LEVEL=DEBUG
+export SSM_PREFIX=/path/to/ssm/settings
+export AUTH_MODE=flask
+export STATIC_ROOT=/path/to/static/site/content/
+export FLASK_APP=static_site_wrapper_app:bootstrap
+```
+
+### Run with AWS creds
+
+```
+flask run
+```
+
+## Packaging
+
+### requirements.txt or equivalent
+
+```
+git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=flaskauth&subdirectory=cybersecuritytools/flaskauth
+```
+### entrypoint.py
+
+Create a script to point your lambda at:
+
+```
+from flaskauth.lambda_handler import lambda_handler # noqa
+```
+
+Your lambda entrypoint would then be `entrypoint.lambda_handler`
+
+
 

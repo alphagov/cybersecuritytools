@@ -24,7 +24,7 @@ FlaskResponse = Union[Response, WerkzeugResponse, FlaskWrapperResponse]
 
 STATIC_SITE_ROOT = None
 ACCESS_CONTROLS = None
-DEFAULT_ACCESS: Dict[str, Any] = {"pages": []}
+DEFAULT_ACCESS: Dict[str, Any] = {"paths": {}}
 
 
 def set_static_site_root(root: str) -> None:
@@ -90,6 +90,11 @@ def get_access_file() -> str:
     return f"{STATIC_SITE_ROOT}access-control.json"
 
 
+def set_access_controls(controls: Dict[str, Any]):
+    global ACCESS_CONTROLS
+    ACCESS_CONTROLS = controls
+
+
 def get_access_controls() -> Dict[str, Any]:
     """
     Parse the access control JSON file
@@ -108,7 +113,7 @@ def get_access_controls() -> Dict[str, Any]:
             ACCESS_CONTROLS = controls
         except FileNotFoundError:
             ACCESS_CONTROLS = DEFAULT_ACCESS
-        LOG.debug(controls)
+        LOG.debug(ACCESS_CONTROLS)
 
     return ACCESS_CONTROLS
 
@@ -171,12 +176,15 @@ def check_access(path: str, user: Optional[Dict[str, Union[str, List[str]]]]) ->
             else:
                 # Only check roles if auth required and logged in
                 if "role_requirements" in settings:
+                    requirements_met = []
                     for requirement in settings["role_requirements"]:
                         # This mypy errors because user is optional
                         # The none case is handled by the if not logged_in
-                        allow = check_role_requirement(
+                        requirement_met = check_role_requirement(
                             requirement, user.get("roles", [])  # type: ignore
                         )
+                        requirements_met.append(requirement_met)
+                    allow = all(requirements_met)
 
                 LOG.debug(f"RBAC status: {allow}")
 

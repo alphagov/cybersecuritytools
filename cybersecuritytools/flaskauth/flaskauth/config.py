@@ -25,7 +25,7 @@ def load_ssm_parameters(app: Flask) -> bool:
         ssm_parameters = ssm_client.get_parameters_by_path(
             Path=ssm_prefix, Recursive=True, WithDecryption=True
         )
-
+        LOG.debug(str(ssm_parameters))
         for param in ssm_parameters["Parameters"]:
             for param_name, config_var_name in ssm_parameter_map.items():
                 if param["Name"].endswith(param_name):
@@ -35,6 +35,7 @@ def load_ssm_parameters(app: Flask) -> bool:
                     if config_var_name == "secret_key":
                         LOG.debug("Set app property: %s from ssm", config_var_name)
                         app.secret_key = param["Value"]
+                        app.config["SECRET_KEY"] = param["Value"]
 
                     CONFIG[config_var_name] = param["Value"]
                     LOG.debug("Set config var: %s from ssm", config_var_name)

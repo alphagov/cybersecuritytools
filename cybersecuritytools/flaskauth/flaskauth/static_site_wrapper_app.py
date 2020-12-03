@@ -27,18 +27,23 @@ templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates"
 LOG.debug(f"Template folder: {templates}")
 
 app = Flask(__name__, template_folder=templates)
-app.logger.handlers = LOG.handlers
-load_ssm_parameters(app)
-set_static_site_root(os.environ.get("STATIC_ROOT", ""))
-app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
-LOG.debug(app.config.keys())
 
-if app.config["auth_mode"] == "flask":
-    set_oidc_config(
-        endpoint=app.config.get("oidc_root_endpoint"),
-        client_id=app.config.get("oidc_client_id"),
-        client_secret=app.config.get("oidc_client_secret"),
-    )
+
+def bootstrap():
+    LOG.debug("Bootstrapping")
+    app.logger.handlers = LOG.handlers
+    load_ssm_parameters(app)
+    set_static_site_root(os.environ.get("STATIC_ROOT", ""))
+    app.config["auth_mode"] = os.environ.get("AUTH_MODE", "flask")
+    LOG.debug(app.config.keys())
+
+    if app.config["auth_mode"] == "flask":
+        set_oidc_config(
+            endpoint=app.config.get("oidc_root_endpoint"),
+            client_id=app.config.get("oidc_client_id"),
+            client_secret=app.config.get("oidc_client_secret"),
+        )
+    return app
 
 
 @app.route("/auth")

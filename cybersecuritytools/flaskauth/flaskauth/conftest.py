@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict
 
 import pytest
@@ -35,3 +36,107 @@ def request_home() -> Dict[str, Any]:
         "body": "",
         "isBase64Encoded": True,
     }
+
+
+@pytest.fixture()
+def test_ssm_parameters() -> Dict[str, str]:
+    return {
+        "/flask/secret_key": "flask-secret",
+        "/oidc/endpoint": "keycloak.test.domain",
+        "/oidc/client_id": "oidc-client-id",
+        "/oidc/client_secret": "oidc-client-secret"  # pragma: allowlist secret
+    }
+
+
+@pytest.fixture()
+def static_home() -> str:
+    module_path = os.path.dirname(os.path.abspath(__file__))
+    with open(f"{module_path}/tests/static/index.html", "r") as page_file:
+        page_content = page_file.read()
+    return page_content
+
+
+@pytest.fixture()
+def access_controls():
+    controls = {
+        "paths": {
+            "/index.html": {
+                "open_access": True
+            },
+            "/user-role-one": {
+                "message": "You need to be granted the incident-management role.",
+                "open_access": False,
+                "role_requirements": [
+                    {
+                        "type": "all",
+                        "roles": ["user-role-1"]
+                    }
+                ]
+            },
+            "/user-role-two": {
+                "message": "You need to be granted the incident-management role.",
+                "open_access": False,
+                "role_requirements": [
+                    {
+                        "type": "all",
+                        "roles": ["user-role-2"]
+                    }
+                ]
+            },
+            "/user-role-any": {
+                "message": "You need to be granted the incident-management role.",
+                "open_access": False,
+                "role_requirements": [
+                    {
+                        "type": "any",
+                        "roles": ["user-role-1", "user-role-2"]
+                    }
+                ]
+            },
+            "/user-role-all": {
+                "message": "You need to be granted the incident-management role.",
+                "open_access": False,
+                "role_requirements": [
+                    {
+                        "type": "all",
+                        "roles": ["user-role-1", "user-role-2"]
+                    }
+                ]
+            },
+            "/user-role-split": {
+                "message": "You need to be granted the incident-management role.",
+                "open_access": False,
+                "role_requirements": [
+                    {
+                        "type": "any",
+                        "roles": ["user-role-1", "user-role-2"]
+                    },
+                    {
+                        "type": "all",
+                        "roles": ["user-role-3"]
+                    }
+                ]
+            }
+        }
+    }
+    return controls
+
+
+def get_default_session():
+    session = {
+        "state": "abc123",
+        "user_info": {
+            "name": "Test User",
+            "email": "test.user@test-domain.com",
+            "roles": ["user-role-1"]
+        }
+    }
+    return session
+
+
+@pytest.fixture()
+def test_session():
+    return get_default_session()
+
+
+

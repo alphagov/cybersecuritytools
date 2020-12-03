@@ -1,51 +1,159 @@
 import json
+import os
 from typing import Any
+from unittest import mock
 
 import pytest
 from flask.testing import FlaskClient
+from jsonlogger import LOG
 
-from .static_site_wrapper_app import app  # noqa
-
-app.config["SECRET_KEY"] = "testnotrandom"
-
-
-@pytest.fixture(scope="session")
-def authenticated() -> FlaskClient:
-    """Setup a flask test client. This is used to connect to the test
-    server and make requests.
-    """
-    app.config["TESTING"] = True
-    app.config["verify_oidc"] = False
-    authenticated = app.test_client()
-    return authenticated
+from .auth import set_access_controls
+from .tests import stubs
+from .static_site_wrapper_app import bootstrap  # noqa
 
 
-@pytest.fixture(scope="session")
-def unauthenticated() -> FlaskClient:
-    """Setup a flask test unauthenticated. This is used to connect to the test
-    server and make requests.
-    """
+def get_test_client(app):
+    # Flask provides a way to test your application by exposing the Werkzeug test Client
+    # and handling the context locals for you.
+    testing_client = app.test_client()
 
-    unauthenticated = app.test_client()
-    return unauthenticated
+    # Establish an application context before running the tests.
+    ctx = app.app_context()
+    ctx.push()
 
-
-@pytest.fixture(scope="session")
-def alb_https_odic_get_root() -> Any:
-    """Load a JSON alb request that has OIDC information in it."""
-    with open("tests/fixtures/alb_https_oidc_get_root.json", "r") as f:
-        return json.load(f)
+    return testing_client  # this is where the testing happens!
 
 
-def test_good_to_go(unauthenticated: FlaskClient) -> None:
-    """Test the '/__gtg' endpoint works and returns the text 'Good to
-    Go!'. This is used by the ELB healthcheck.
-    """
-    result = unauthenticated.get("/__gtg")
-    assert b"Good to Go!" in result.data
+@pytest.mark.usefixtures("test_session", "test_ssm_parameters", "access_controls")
+def test_route_user_role_1(test_session, test_ssm_parameters, access_controls):
+    ssm_prefix = os.environ.get("SSM_PREFIX")
+    stubber = stubs.mock_config_load_ssm_parameters(ssm_prefix, test_ssm_parameters)
+
+    expected_access = {
+        "/": True,
+        "/user-role-one.html": True,
+        "/user-role-one/sub-page.html": True,
+        "/user-role-two.html": False,
+        "/user-role-any.html": True,
+        "/user-role-all.html": False,
+        "/user-role-split.html": False
+    }
+    with stubber:
+        expect_access(test_session, access_controls, expected_access)
 
 
-def test_logout(authenticated: FlaskClient) -> None:
-    """Test the '/logout' endpoint works and returns /login redirect"""
-    result = authenticated.get("/logout")
-    assert b"/login" in result.data and 302 == result.status_code
+@pytest.mark.usefixtures("test_session", "test_ssm_parameters", "access_controls")
+def test_route_user_role_2(test_session, test_ssm_parameters, access_controls):
+    ssm_prefix = os.environ.get("SSM_PREFIX")
+    test_session["user_info"]["roles"] = ["user-role-2"]
+    stubber = stubs.mock_config_load_ssm_parameters(ssm_prefix, test_ssm_parameters)
+
+    expected_access = {
+        "/": True,
+        "/user-role-one.html": False,
+        "/user-role-one/sub-page.html": False,
+        "/user-role-two.html": True,
+        "/user-role-any.html": True,
+        "/user-role-all.html": False,
+        "/user-role-split.html": False
+    }
+    with stubber:
+        expect_access(test_session, access_controls, expected_access)
+
+
+@pytest.mark.usefixtures("test_session", "test_ssm_parameters", "access_controls")
+def test_route_user_role_all(test_session, test_ssm_parameters, access_controls):
+    ssm_prefix = os.environ.get("SSM_PREFIX")
+    test_session["user_info"]["roles"] = ["user-role-1", "user-role-2", "user-role-3"]
+    stubber = stubs.mock_config_load_ssm_parameters(ssm_prefix, test_ssm_parameters)
+
+    expected_access = {
+        "/": True,
+        "/user-role-one.html": True,
+        "/user-role-one/sub-page.html": True,
+        "/user-role-two.html": True,
+        "/user-role-any.html": True,
+        "/user-role-all.html": True,
+        "/user-role-split.html": True
+    }
+    with stubber:
+        expect_access(test_session, access_controls, expected_access)
+
+
+@pytest.mark.usefixtures("test_ssm_parameters", "access_controls")
+def test_route_logged_out(test_ssm_parameters, access_controls):
+    ssm_prefix = os.environ.get("SSM_PREFIX")
+    stubber = stubs.mock_config_load_ssm_parameters(ssm_prefix, test_ssm_parameters)
+
+    expected_access = {
+        "/": True,
+        "/user-role-one.html": False,
+        "/user-role-one/sub-page.html": False,
+        "/user-role-two.html": False,
+        "/user-role-any.html": False,
+        "/user-role-all.html": False,
+        "/user-role-split.html": False
+    }
+    with stubber:
+        expect_access({}, access_controls, expected_access)
+
+
+@pytest.mark.usefixtures("test_ssm_parameters", "access_controls")
+def test_route_assets(test_ssm_parameters, access_controls):
+    ssm_prefix = os.environ.get("SSM_PREFIX")
+    stubber = stubs.mock_config_load_ssm_parameters(ssm_prefix, test_ssm_parameters)
+
+    expected_access = {
+        "/assets/favicon.ico": True,
+        "/assets/govuk-crest.png": True,
+        "/assets/font.woff": True,
+        "/assets/font.woff2": True,
+        "/assets/test.css": True,
+        "/assets/test.js": True
+    }
+    with stubber:
+        expect_access({}, access_controls, expected_access)
+
+
+def expect_access(test_session, access_controls, expected_access, binary=False):
+    app = bootstrap()
+    test_client = get_test_client(app)
+    with test_client.session_transaction() as client_session:
+        client_session.update(test_session)
+
+    set_access_controls(access_controls)
+
+    logged_in = "user_info" in test_session
+
+    for route, allow in expected_access.items():
+        ext = route.split(".").pop()
+        is_text_asset = ext in ["css", "js"]
+        is_binary = ext in ["ico", "png", "woff", "woff2"]
+
+        response = test_client.get(route)
+        assert response.status_code == 200
+        if is_binary or is_text_asset:
+            assert response.content_type != "text/html"
+        else:
+            # html pages check content rendered correctly
+            body = response.data.decode()
+            assert response.content_type == "text/html"
+
+            check_access_denied_component(allow, body)
+            check_login_component(logged_in, body, test_session.get("user_info"))
+
+
+def check_access_denied_component(allow, body):
+    if allow:
+        assert "Access granted" in body
+    else:
+        assert "Access granted" not in body
+
+
+def check_login_component(logged_in, body, user_info=None):
+    if logged_in:
+
+        assert f"Logged in as: {user_info['name']}" in body
+        assert "Logout" in body
+    else:
+        assert "Login" in body
