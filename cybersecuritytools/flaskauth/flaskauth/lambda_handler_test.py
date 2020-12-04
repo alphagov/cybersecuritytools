@@ -1,20 +1,16 @@
 import os
 from typing import Any, Dict
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 import pytest
 
-from .tests import stubs
 from .lambda_handler import lambda_handler
+from .tests import stubs
 
 
-@pytest.mark.usefixtures(
-    "request_home",
-    "test_ssm_parameters"
-)
+@pytest.mark.usefixtures("request_home", "test_ssm_parameters")
 def test_get_homepage(
-    request_home: Dict[str, Any],
-    test_ssm_parameters: Dict[str, str]
+    request_home: Dict[str, Any], test_ssm_parameters: Dict[str, str]
 ) -> None:
     """
     Run a request through the lambda_handler and save the response for

@@ -42,7 +42,7 @@ setuptools.setup(
             "pytest-mock",
             "pytest-mypy",
             "pytest-cov",
-            "requests-mock"
+            "requests-mock",
         ]
     },
     python_requires=">=3.6",

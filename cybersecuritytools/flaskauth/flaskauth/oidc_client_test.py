@@ -5,9 +5,9 @@ import pytest
 import requests_mock
 from jsonlogger import LOG
 
-from .tests import stubs
+from .oidc_client import get_client, get_host
 from .static_site_wrapper_app import bootstrap
-from .oidc_client import get_host, get_client
+from .tests import stubs
 
 
 @pytest.mark.usefixtures("test_ssm_parameters")
