@@ -4,6 +4,18 @@ from typing import Any, Dict
 import pytest
 
 
+def get_test_client(app):
+    # Flask provides a way to test your application by exposing the Werkzeug test Client
+    # and handling the context locals for you.
+    testing_client = app.test_client()
+
+    # Establish an application context before running the tests.
+    ctx = app.app_context()
+    ctx.push()
+
+    return testing_client  # this is where the testing happens!
+
+
 @pytest.fixture()
 def kid() -> str:
     "The Key ID we expect for the above public key"
@@ -38,11 +50,15 @@ def request_home() -> Dict[str, Any]:
     }
 
 
+def get_oidc_root():
+    return "https://oidc.test.domain/auth/root/"
+
+
 @pytest.fixture()
 def test_ssm_parameters() -> Dict[str, str]:
     return {
         "/flask/secret_key": "flask-secret",
-        "/oidc/endpoint": "keycloak.test.domain",
+        "/oidc/endpoint": get_oidc_root(),
         "/oidc/client_id": "oidc-client-id",
         "/oidc/client_secret": "oidc-client-secret"  # pragma: allowlist secret
     }
@@ -138,5 +154,11 @@ def get_default_session():
 def test_session():
     return get_default_session()
 
+
+@pytest.fixture()
+def openid_config():
+    with open("tests/mock/openid-configuration.json", "r") as config:
+        content = config.read()
+    return content
 
 

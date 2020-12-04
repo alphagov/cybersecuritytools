@@ -41,6 +41,7 @@ pytest-cov = "*"
 tox-gh-actions = "*"
 moto = "*"
 jsonlogger = {path = "cybersecuritytools/jsonlogger"}
+requests-mock = "*"
 
 [tool.poetry.scripts]
 cst = "cybersecuritytools.cst:cli"

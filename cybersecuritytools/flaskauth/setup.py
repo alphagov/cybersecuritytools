@@ -30,5 +30,20 @@ setuptools.setup(
         "serverless_wsgi",
         "jsonlogger @ git+https://github.com/alphagov/cybersecuritytools.git@authed-tech-docs#egg=jsonlogger&subdirectory=cybersecuritytools/jsonlogger",
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "isort",
+            "black",
+            "pytest-black",
+            "pytest-env",
+            "pytest-flake8",
+            "pytest-isort",
+            "pytest-mock",
+            "pytest-mypy",
+            "pytest-cov",
+            "requests-mock"
+        ]
+    },
     python_requires=">=3.6",
 )

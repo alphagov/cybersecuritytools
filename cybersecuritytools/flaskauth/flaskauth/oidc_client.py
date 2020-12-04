@@ -207,7 +207,3 @@ def get_logout_redirect(redirect_to: str) -> FlaskResponse:
 
     response = redirect(logout_url)
     return response
-
-
-def reset_config() -> None:
-    del CONFIG["token"]
