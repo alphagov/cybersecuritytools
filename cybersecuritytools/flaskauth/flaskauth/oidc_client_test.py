@@ -8,12 +8,13 @@ from jsonlogger import LOG
 
 from .conftest import get_oidc_root
 from .oidc_client import (
+    CONFIG,
     get_client,
     get_host,
     set_oidc_config,
     get_session_state,
     get_authorization_url,
-    CONFIG,
+    set_oidc_config,
 )
 from .static_site_wrapper_app import bootstrap
 from .tests import stubs

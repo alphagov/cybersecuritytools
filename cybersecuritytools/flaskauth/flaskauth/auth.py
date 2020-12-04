@@ -94,7 +94,7 @@ def get_access_file() -> str:
     return f"{STATIC_SITE_ROOT}access-control.json"
 
 
-def set_access_controls(controls: Dict[str, Any]):
+def set_access_controls(controls: Dict[str, Any]) -> None:
     global ACCESS_CONTROLS
     ACCESS_CONTROLS = controls
 
@@ -119,6 +119,7 @@ def get_access_controls() -> Dict[str, Any]:
             ACCESS_CONTROLS = DEFAULT_ACCESS
         LOG.debug(ACCESS_CONTROLS)
 
+    assert isinstance(ACCESS_CONTROLS, Dict)
     return ACCESS_CONTROLS
 
 
