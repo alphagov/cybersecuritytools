@@ -60,7 +60,7 @@ def test_ssm_parameters() -> Dict[str, str]:
         "/flask/secret_key": "flask-secret",
         "/oidc/endpoint": get_oidc_root(),
         "/oidc/client_id": "oidc-client-id",
-        "/oidc/client_secret": "oidc-client-secret"  # pragma: allowlist secret
+        "/oidc/client_secret": "oidc-client-secret",  # pragma: allowlist secret
     }
 
 
@@ -76,63 +76,39 @@ def static_home() -> str:
 def access_controls():
     controls = {
         "paths": {
-            "/index.html": {
-                "open_access": True
-            },
+            "/index.html": {"open_access": True},
             "/user-role-one": {
                 "message": "You need to be granted the incident-management role.",
                 "open_access": False,
-                "role_requirements": [
-                    {
-                        "type": "all",
-                        "roles": ["user-role-1"]
-                    }
-                ]
+                "role_requirements": [{"type": "all", "roles": ["user-role-1"]}],
             },
             "/user-role-two": {
                 "message": "You need to be granted the incident-management role.",
                 "open_access": False,
-                "role_requirements": [
-                    {
-                        "type": "all",
-                        "roles": ["user-role-2"]
-                    }
-                ]
+                "role_requirements": [{"type": "all", "roles": ["user-role-2"]}],
             },
             "/user-role-any": {
                 "message": "You need to be granted the incident-management role.",
                 "open_access": False,
                 "role_requirements": [
-                    {
-                        "type": "any",
-                        "roles": ["user-role-1", "user-role-2"]
-                    }
-                ]
+                    {"type": "any", "roles": ["user-role-1", "user-role-2"]}
+                ],
             },
             "/user-role-all": {
                 "message": "You need to be granted the incident-management role.",
                 "open_access": False,
                 "role_requirements": [
-                    {
-                        "type": "all",
-                        "roles": ["user-role-1", "user-role-2"]
-                    }
-                ]
+                    {"type": "all", "roles": ["user-role-1", "user-role-2"]}
+                ],
             },
             "/user-role-split": {
                 "message": "You need to be granted the incident-management role.",
                 "open_access": False,
                 "role_requirements": [
-                    {
-                        "type": "any",
-                        "roles": ["user-role-1", "user-role-2"]
-                    },
-                    {
-                        "type": "all",
-                        "roles": ["user-role-3"]
-                    }
-                ]
-            }
+                    {"type": "any", "roles": ["user-role-1", "user-role-2"]},
+                    {"type": "all", "roles": ["user-role-3"]},
+                ],
+            },
         }
     }
     return controls
@@ -144,8 +120,8 @@ def get_default_session():
         "user_info": {
             "name": "Test User",
             "email": "test.user@test-domain.com",
-            "roles": ["user-role-1"]
-        }
+            "roles": ["user-role-1"],
+        },
     }
     return session
 
@@ -160,5 +136,3 @@ def openid_config():
     with open("tests/mock/openid-configuration.json", "r") as config:
         content = config.read()
     return content
-
-

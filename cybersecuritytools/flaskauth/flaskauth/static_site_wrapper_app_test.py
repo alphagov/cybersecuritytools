@@ -9,8 +9,8 @@ from jsonlogger import LOG
 
 from .auth import set_access_controls
 from .conftest import get_test_client
-from .tests import stubs
 from .static_site_wrapper_app import bootstrap  # noqa
+from .tests import stubs
 
 
 @pytest.mark.usefixtures("test_session", "test_ssm_parameters", "access_controls")
@@ -25,7 +25,7 @@ def test_route_user_role_1(test_session, test_ssm_parameters, access_controls):
         "/user-role-two.html": False,
         "/user-role-any.html": True,
         "/user-role-all.html": False,
-        "/user-role-split.html": False
+        "/user-role-split.html": False,
     }
     with stubber:
         expect_access(test_session, access_controls, expected_access)
@@ -44,7 +44,7 @@ def test_route_user_role_2(test_session, test_ssm_parameters, access_controls):
         "/user-role-two.html": True,
         "/user-role-any.html": True,
         "/user-role-all.html": False,
-        "/user-role-split.html": False
+        "/user-role-split.html": False,
     }
     with stubber:
         expect_access(test_session, access_controls, expected_access)
@@ -63,7 +63,7 @@ def test_route_user_role_all(test_session, test_ssm_parameters, access_controls)
         "/user-role-two.html": True,
         "/user-role-any.html": True,
         "/user-role-all.html": True,
-        "/user-role-split.html": True
+        "/user-role-split.html": True,
     }
     with stubber:
         expect_access(test_session, access_controls, expected_access)
@@ -81,7 +81,7 @@ def test_route_logged_out(test_ssm_parameters, access_controls):
         "/user-role-two.html": False,
         "/user-role-any.html": False,
         "/user-role-all.html": False,
-        "/user-role-split.html": False
+        "/user-role-split.html": False,
     }
     with stubber:
         expect_access({}, access_controls, expected_access)
@@ -98,7 +98,7 @@ def test_route_assets(test_ssm_parameters, access_controls):
         "/assets/font.woff": True,
         "/assets/font.woff2": True,
         "/assets/test.css": True,
-        "/assets/test.js": True
+        "/assets/test.js": True,
     }
     with stubber:
         expect_access({}, access_controls, expected_access)
