@@ -133,6 +133,7 @@ def test_session():
 
 @pytest.fixture()
 def openid_config():
-    with open("tests/mock/openid-configuration.json", "r") as config:
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(f"{here}/tests/mock/openid-configuration.json", "r") as config:
         content = config.read()
     return content

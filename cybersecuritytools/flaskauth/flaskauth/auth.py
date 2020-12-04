@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -29,6 +30,9 @@ DEFAULT_ACCESS: Dict[str, Any] = {"paths": {}}
 
 def set_static_site_root(root: str) -> None:
     global STATIC_SITE_ROOT
+    if root[0] != "/":
+        here = os.path.dirname(os.path.abspath(__file__))
+        root = f"{here}/{root}"
     STATIC_SITE_ROOT = root
 
 
