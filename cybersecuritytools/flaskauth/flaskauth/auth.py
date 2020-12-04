@@ -266,15 +266,26 @@ def authorize_static(app: Flask) -> Function:
     def decorator(route_function: Function) -> Function:
         @wraps(route_function)
         def decorated_function(*args: Any, **kwargs: Any) -> Any:
-            response = route_function(*args, **kwargs)
             path = request.path
-
             app.logger.debug(f"URL: {path}")
+            passthru = False
+
+            try:
+                response = route_function(*args, **kwargs)
+            except FileNotFoundError:
+                app.logger.error("File not found")
+                response = make_default_response("/")
+                content = response.get_data().decode("utf8")
+                content = insert_not_found_component(content)
+                response.set_data(content.encode("utf8"))
+                response.headers["Content-type"] = "text/html"
+                passthru = True
 
             # Don't access control asset files
             ext = path.split(".").pop()
-            passthru = ext in ["ico", "css", "js", "png", "woff", "woff2"]
-            if passthru:
+            is_asset = ext in ["ico", "css", "js", "png", "woff", "woff2"]
+            if is_asset:
+                passthru = True
                 # remove leading slash to avoid // in path
                 path = re.sub("^/", "", path)
                 response = send_from_directory(STATIC_SITE_ROOT, path)
@@ -347,6 +358,25 @@ def insert_denied_component(
         session["request_path"] = authorised_path
     except ValueError:
         LOG.debug(f"Main tag not found in content for: {authorised_path}")
+    return content
+
+
+def insert_not_found_component(content: str) -> str:
+    """
+    Render file not found page
+
+    Replaces the main element content with the
+    rendered denied template
+    """
+    not_found_content = render_template(
+        "not_found.html"
+    )
+    try:
+        main_start = content.index("<main")
+        main_close = content.index("</main>") + 7
+        content = content[0:main_start] + not_found_content + content[main_close:]
+    except ValueError:
+        LOG.debug(f"Main tag not found in content.")
     return content
 
 

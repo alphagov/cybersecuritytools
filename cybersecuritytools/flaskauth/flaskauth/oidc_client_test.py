@@ -28,7 +28,9 @@ def test_get_host(test_ssm_parameters):
         app = bootstrap()
         with app.test_request_context("/"):
             host = get_host()
-            assert host == "http://localhost/"
+            assert (
+                host == "http://localhost/"
+            ), "Get host should return a domain with protocol and trailing slash."
 
 
 def test_set_oidc_config():
@@ -38,17 +40,25 @@ def test_set_oidc_config():
         client_id="client",
         client_secret="secret",
     )
-    assert CONFIG["endpoint"] == oidc_root
-    assert CONFIG["client_id"] == "client"
-    assert CONFIG["client_secret"] == "secret"
-    assert CONFIG["scope"] == "openid profile email roles"
+    assert (
+        CONFIG["endpoint"] == oidc_root
+    ), "Arguments should be passed through to CONFIG"
+    assert (
+        CONFIG["client_id"] == "client"
+    ), "Arguments should be passed through to CONFIG"
+    assert (
+        CONFIG["client_secret"] == "secret"
+    ), "Arguments should be passed through to CONFIG"
+    assert (
+        CONFIG["scope"] == "openid profile email roles"
+    ), "Default scope should be set"
     set_oidc_config(
         endpoint=oidc_root,
         client_id="client",
         client_secret="secret",
         scope="openid email",
     )
-    assert CONFIG["scope"] == "openid email"
+    assert CONFIG["scope"] == "openid email", "Scope can be overridden if specified"
 
 
 @pytest.mark.usefixtures("openid_config", "test_ssm_parameters")
@@ -64,7 +74,9 @@ def test_get_client(openid_config, test_ssm_parameters):
         config_url = f"{oidc_root}.well-known/openid-configuration"
         mock_requests.get(config_url, text=openid_config)
         client = get_client()
-        assert client.authorization_endpoint == config_file["authorization_endpoint"]
+        assert (
+            client.authorization_endpoint == config_file["authorization_endpoint"]
+        ), "The client should be configured with urls from the openid-condfiguration.json"
 
 
 @pytest.mark.usefixtures("test_ssm_parameters")
@@ -115,13 +127,19 @@ def test_get_authorization_url(openid_config, test_ssm_parameters):
             scope = urllib.parse.quote_plus(CONFIG["scope"])
             state = get_session_state()
             auth_url = get_authorization_url(redirect)
-            assert auth_url.startswith(oidc_root)
-            assert f"?client_id={client_id}" in auth_url
-            assert f"&redirect_uri={encoded_redirect}" in auth_url
-            assert f"&state={state}" in auth_url
+            assert auth_url.startswith(
+                oidc_root
+            ), "Auth url should point to the oidc provider."
             assert (
-                "&response_type=code"
-                f"&scope={scope}"
-                "&nonce="
-            ) in auth_url
+                f"?client_id={client_id}" in auth_url
+            ), "Auth url should contain the client_id."
+            assert (
+                f"&redirect_uri={encoded_redirect}" in auth_url
+            ), "Auth url should contain the redirect uri encoded."
+            assert (
+                f"&state={state}" in auth_url
+            ), "Auth url should contain session state."
+            assert (
+                "&response_type=code" f"&scope={scope}" "&nonce="
+            ) in auth_url, "Auth url should contain response_type, scope and nonce."
 
