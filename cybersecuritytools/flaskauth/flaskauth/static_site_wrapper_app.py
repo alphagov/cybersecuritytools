@@ -29,7 +29,7 @@ LOG.debug(f"Template folder: {templates}")
 app = Flask(__name__, template_folder=templates)
 
 
-def bootstrap():
+def bootstrap() -> Flask:
     LOG.debug("Bootstrapping")
     app.logger.handlers = LOG.handlers
     load_ssm_parameters(app)

@@ -55,7 +55,7 @@ def get_oidc_root():
 
 
 @pytest.fixture()
-def test_ssm_parameters() -> Dict[str, str]:
+def test_ssm_parameters() -> Dict[str, Any]:
     return {
         "/flask/secret_key": "flask-secret",
         "/oidc/endpoint": get_oidc_root(),

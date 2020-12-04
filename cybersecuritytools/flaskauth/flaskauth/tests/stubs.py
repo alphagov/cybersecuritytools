@@ -1,17 +1,17 @@
 # """ Create mock boto3 clients for testing """
 import boto3
-from botocore.stub import Stubber
+from botocore.stub import Stubber # type: ignore
+from typing import Dict, Any
 
-
-def _keep_it_real():
+def _keep_it_real() -> None:
     """ Keep the native """
     if not getattr(boto3, "real_client", None):
-        boto3.real_client = boto3.client
+        boto3.real_client = boto3.client # type: ignore
 
 
-def mock_config_load_ssm_parameters(path, parameters):
+def mock_config_load_ssm_parameters(path: str, parameters: Dict[str, str]) -> Stubber:
     _keep_it_real()
-    client = boto3.real_client("ssm")
+    client = boto3.real_client("ssm") # type: ignore
 
     stubber = Stubber(client)
 
@@ -20,13 +20,13 @@ def mock_config_load_ssm_parameters(path, parameters):
 
     stubber.activate()
     # override boto.client to return the mock client
-    boto3.client = lambda service, region_name=None: client
+    boto3.client = lambda service, region_name=None: client # type: ignore
     return stubber
 
 
 # Responses
 # Client: ssm
-def stub_response_ssm_get_parameters_by_path(stubber, path, parameters):
+def stub_response_ssm_get_parameters_by_path(stubber: Stubber, path: str, parameters: Dict[str, Any]) -> None:
     response_params = [
         {"Name": f"{path}{param_name}", "Value": param_value}
         for param_name, param_value in parameters.items()
