@@ -37,6 +37,10 @@ def set_static_site_root(root: str) -> None:
     STATIC_SITE_ROOT = root
 
 
+def get_static_site_root() -> Optional[str]:
+    return STATIC_SITE_ROOT
+
+
 class AccessDeniedException(Exception):
     """
     Raised if access requirements are not met
