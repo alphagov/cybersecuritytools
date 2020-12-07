@@ -10,12 +10,12 @@ from cybersecuritytools.jsonlogger import LOG
 
 from .conftest import get_oidc_root
 from .oidc_client import (
+    CONFIG,
+    get_authorization_url,
     get_client,
     get_host,
-    set_oidc_config,
     get_session_state,
-    get_authorization_url,
-    CONFIG,
+    set_oidc_config,
 )
 from .static_site_wrapper_app import bootstrap
 from .tests import stubs
@@ -146,4 +146,3 @@ def test_get_authorization_url(
             assert (
                 "&response_type=code" f"&scope={scope}" "&nonce="
             ) in auth_url, "Auth url should contain response_type, scope and nonce."
-
