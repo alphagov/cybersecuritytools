@@ -3,7 +3,10 @@ import sys
 
 pattern = "((?<=DEBUG: Request\s)(\w*\W\w*))"
 
-with open(sys.argv[1],"r") as data:
-    with open('aws_requests.txt','w') as aws:
-        for s in sorted(set([re.search(pattern,d).group(1) for d in data if re.search(pattern, d)])):
-            aws.write(s.replace("/",":")+"\n")
+input = sys.argv[1]
+
+with open(input,"r") as raw_log:
+    with open('aws_requests.txt','w') as aws_requests:
+        for sorted_request in sorted(set([re.search(pattern,d).group(1)
+            for d in raw_log if re.search(pattern, d)])):
+                aws_requests.write(sorted_request.replace("/",":")+"\n")
