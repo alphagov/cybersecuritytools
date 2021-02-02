@@ -24,17 +24,26 @@ extract the requests by either moving the log file to `aws_requests.py` or vice 
 python aws_requests.py log.log
 ```
 
-This will generate a text file with each requests ordered alphabeticaly and grouped together, eg;
+This will generate a JSON file with each requests ordered alphabeticaly and grouped together by service and the actions used on that service, eg;
 
-```
-ecs:CreateService
-ecs:DescribeClusters
-ecs:RegisterTaskDefinition
-elasticloadbalancing:AddTags
-elasticloadbalancing:CreateListener
-iam:GetRole
-iam:ListAttachedRolePolicies
-rds:AddTagsToResource
-rds:CreateDBSubnetGroup
+```json
+{
+    "acm": [
+        "DescribeCertificate",
+        "ListTagsForCertificate",
+        "RequestCertificate"
+    ],
+    "ec2": [
+        "AuthorizeSecurityGroupEgress",
+        "AuthorizeSecurityGroupIngress",
+        "CreateSecurityGroup",
+    ],
+    "ecs": [
+        "CreateCluster",
+        "CreateService",
+        "DescribeClusters",
+        "DescribeServices",
+    ]
+}
 ```
 
