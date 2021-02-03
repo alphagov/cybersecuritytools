@@ -154,7 +154,7 @@ def check_role_requirement(
     return allow
 
 
-def check_access(path: str, user: Optional[Dict[str, Union[str, List[str]]]]) -> None:
+def check_access(path: str, user: Optional[Dict[str, Union[str, List[str]]]]) -> bool:
     """
     Check request against defined access restrictions
 
@@ -204,6 +204,7 @@ def check_access(path: str, user: Optional[Dict[str, Union[str, List[str]]]]) ->
         LOG.debug("Path not found in config - assuming authentication required")
     if not allow:
         raise AccessDeniedException(request_path=path, message=access_message)
+    return allow
 
 
 def authorize_or_redirect(app: Flask, denied_route: str = "/access-denied") -> Function:
@@ -278,8 +279,8 @@ def authorize_static(app: Flask) -> Function:
 
             try:
                 response = route_function(*args, **kwargs)
-            except FileNotFoundError:
-                app.logger.error("File not found")
+            except FileNotFoundError as error:
+                app.logger.error("File not found: %s", str(error))
                 response = make_default_response("/")
                 content = response.get_data().decode("utf8")
                 content = insert_not_found_component(content)
@@ -393,9 +394,11 @@ def get_static_file_content(path: str) -> Union[str, bytes]:
     """
     LOG.debug(f"Invoke get_static_site_content for path: {path}")
     try:
+        LOG.debug(f"Attempt read file (text): {STATIC_SITE_ROOT}{path}")
         with open(f"{STATIC_SITE_ROOT}{path}", "r") as content_file:
             content = content_file.read()
     except UnicodeDecodeError:
+        LOG.debug(f"Attempt read file (binary): {STATIC_SITE_ROOT}{path}")
         with open(f"{STATIC_SITE_ROOT}{path}", "rb") as binary_file:
             content = binary_file.read()  # type: ignore
     return content
