@@ -3,9 +3,9 @@ import sys
 import json
 from typing import List, Dict, Pattern, Any
 
-ACTION = re.compile("((?<=DEBUG: Request\s)(\w*\W\w*))")  # noqa: W605
-SERVICE = re.compile("(\w*(?=\:))")  # noqa: W605
-PERMISSION = re.compile("((?<=\:)\w*)")  # noqa: W605
+ACTION = re.compile(r'((?<=DEBUG: Request\s)(\w*\W\w*))')
+SERVICE = re.compile(r'(\w*(?=\:))')
+PERMISSION = re.compile(r'((?<=\:)\w*)')
 
 
 def main() -> None:
