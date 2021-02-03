@@ -1,6 +1,6 @@
 # Aws Permissions Helper 
 
-This script will read the a logfile and extract all the requests made to create the resources and output them to a file called `aws_requests.txt`
+This script will read the a logfile and extract all the requests made to create the resources and output them formatted as JSON to `aws_requests.json`
 
 ## Usage
 
@@ -24,7 +24,7 @@ extract the requests by either moving the log file to `aws_requests.py` or vice 
 python aws_requests.py log.log
 ```
 
-This will generate a JSON file with each requests ordered alphabeticaly and grouped together by service and the actions used on that service, eg;
+This will generate a JSON file grouped by service and ordered alphabeticaly eg:
 
 ```json
 {

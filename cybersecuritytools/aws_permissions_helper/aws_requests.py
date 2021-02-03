@@ -2,11 +2,10 @@ import re
 import sys
 import json
 from typing import List, Dict
-from pprint import pprint
 
-ACTION = re.compile("((?<=DEBUG: Request\s)(\w*\W\w*))")
-SERVICE = re.compile("(\w*(?=\:))")
-PERMISSION = re.compile("((?<=\:)\w*)")
+ACTION = re.compile("((?<=DEBUG: Request\s)(\w*\W\w*))")  # noqa: W605
+SERVICE = re.compile("(\w*(?=\:))")  # noqa: W605
+PERMISSION = re.compile("((?<=\:)\w*)")  # noqa: W605
 
 
 def main():
@@ -20,9 +19,19 @@ def main():
         aws_requests.write(grouped_permissions(requests))
 
 
+def regex_check(pattern, text) -> str:
+    match = re.search(pattern, text)
+    if match:
+        return match.group(0)
+    else:
+        return "No Match"
+
+
 def extract_requests(raw_log: List[str]) -> str:
     """
-    >>> extract_requests(['2021-01-25T16:25:56.957Z [DEBUG] plugin.terraform-provider-aws_v2.70.0_x4: 2021/01/25 16:25:56 [DEBUG] [aws-sdk-go] DEBUG: Request rds/DescribeDBInstances Details:'])
+    >>> extract_requests(['2021-01-25T16:25:56.957Z [DEBUG] \
+    plugin.terraform-provider-aws_v2.70.0_x4:2021/01/2516:25:56 \
+    [DEBUG] [aws-sdk-go] DEBUG: Request rds/DescribeDBInstances Details:'])
     'rds:DescribeDBInstances'
     """
     iam_actions = set()
@@ -38,13 +47,19 @@ def extract_requests(raw_log: List[str]) -> str:
 
 def grouped_permissions(requests: str) -> str:
     """
-    >>> grouped_permissions('acm:DescribeCertificate\\racm:ListTagsForCertificate\\racm:RequestCertificate\\rec2:AuthorizeSecurityGroupEgress\\rec2:AuthorizeSecurityGroupIngress\\rec2:CreateSecurityGroup')
-    '{"acm": ["DescribeCertificate", "ListTagsForCertificate", "RequestCertificate"], "ec2": ["AuthorizeSecurityGroupEgress", "AuthorizeSecurityGroupIngress", "CreateSecurityGroup"]}'
+    >>> grouped_permissions(\
+    'acm:DescribeCertificate\\racm:ListTagsForCertificate\\racm:RequestCertificate\
+    \\rec2:AuthorizeSecurityGroupEgress\\rec2:AuthorizeSecurityGroupIngress\
+    \\rec2:CreateSecurityGroup')
+    '\
+{"acm": ["DescribeCertificate", "ListTagsForCertificate", \
+"RequestCertificate"], "ec2": ["AuthorizeSecurityGroupEgress", \
+"AuthorizeSecurityGroupIngress", "CreateSecurityGroup"]}'
     """
-    grouped_permissions = {}
+    grouped_permissions: Dict[str, List[str]] = {}
     for request in requests.splitlines():
-        match_service = re.search(SERVICE, request).group(1)
-        match_permission = re.search(PERMISSION, request).group(1)
+        match_service = regex_check(SERVICE, request)
+        match_permission = regex_check(PERMISSION, request)
         if match_service not in grouped_permissions:
             grouped_permissions[match_service] = []
             grouped_permissions[match_service].append(match_permission)
