@@ -1,14 +1,14 @@
 import re
 import sys
 import json
-from typing import List, Dict
+from typing import List, Dict, Pattern, Any
 
 ACTION = re.compile("((?<=DEBUG: Request\s)(\w*\W\w*))")  # noqa: W605
 SERVICE = re.compile("(\w*(?=\:))")  # noqa: W605
 PERMISSION = re.compile("((?<=\:)\w*)")  # noqa: W605
 
 
-def main():
+def main() -> None:
     input = sys.argv[1]
     with open(input, "r") as raw_log:
         debug_log = raw_log.readlines()
@@ -19,7 +19,7 @@ def main():
         aws_requests.write(grouped_permissions(requests))
 
 
-def regex_check(pattern, text) -> str:
+def regex_check(pattern: Pattern, text: str) -> Any:
     match = re.search(pattern, text)
     if match:
         return match.group(0)
