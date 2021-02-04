@@ -3,4 +3,7 @@
 .tox
 .coverage
 htmlcov
+__pycache__
 .mypy_cache
+cybersecuritytools/aws_permissions_helper/requests.txt
+cybersecuritytools/aws_permissions_helper/aws_requests.json
