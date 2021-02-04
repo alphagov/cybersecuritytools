@@ -1,7 +1,7 @@
+import json
 import re
 import sys
-import json
-from typing import List, Dict, Pattern
+from typing import Dict, List, Pattern
 
 ACTION = re.compile(r"((?<=DEBUG: Request\s)(\w*\W\w*))")
 SERVICE = re.compile(r"(\w*(?=\:))")
@@ -19,13 +19,13 @@ def main() -> None:
         aws_requests.write(grouped_permissions(requests))
 
 
-def first_match(pattern: Pattern, text: str) -> str:
+def first_match(pattern: Pattern[str], text: str) -> str:
     """
     Returns the first regex match
     """
     match = re.search(pattern, text)
     if match:
-        return match.group(0)
+        return str(match.group(0))
     else:
         return "No Match"
 
