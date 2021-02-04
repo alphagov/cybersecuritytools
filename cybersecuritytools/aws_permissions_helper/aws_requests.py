@@ -63,11 +63,7 @@ def grouped_permissions(requests: str) -> str:
     for request in requests.splitlines():
         match_service = first_match(SERVICE, request)
         match_permission = first_match(PERMISSION, request)
-        if match_service not in grouped_permissions:
-            grouped_permissions[match_service] = []
-            grouped_permissions[match_service].append(match_permission)
-        else:
-            grouped_permissions[match_service].append(match_permission)
+        grouped_permissions.setdefault(match_service, []).append(match_permission)
     return json.dumps(grouped_permissions)
 
 
