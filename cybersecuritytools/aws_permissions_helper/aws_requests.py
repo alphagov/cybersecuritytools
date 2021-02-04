@@ -1,11 +1,11 @@
 import re
 import sys
 import json
-from typing import List, Dict, Pattern, Any
+from typing import List, Dict, Pattern
 
-ACTION = re.compile(r'((?<=DEBUG: Request\s)(\w*\W\w*))')
-SERVICE = re.compile(r'(\w*(?=\:))')
-PERMISSION = re.compile(r'((?<=\:)\w*)')
+ACTION = re.compile(r"((?<=DEBUG: Request\s)(\w*\W\w*))")
+SERVICE = re.compile(r"(\w*(?=\:))")
+PERMISSION = re.compile(r"((?<=\:)\w*)")
 
 
 def main() -> None:
@@ -19,7 +19,10 @@ def main() -> None:
         aws_requests.write(grouped_permissions(requests))
 
 
-def regex_check(pattern: Pattern, text: str) -> Any:
+def first_match(pattern: Pattern, text: str) -> str:
+    """
+    Returns the first regex match
+    """
     match = re.search(pattern, text)
     if match:
         return match.group(0)
@@ -58,8 +61,8 @@ def grouped_permissions(requests: str) -> str:
     """
     grouped_permissions: Dict[str, List[str]] = {}
     for request in requests.splitlines():
-        match_service = regex_check(SERVICE, request)
-        match_permission = regex_check(PERMISSION, request)
+        match_service = first_match(SERVICE, request)
+        match_permission = first_match(PERMISSION, request)
         if match_service not in grouped_permissions:
             grouped_permissions[match_service] = []
             grouped_permissions[match_service].append(match_permission)
